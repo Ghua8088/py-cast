@@ -1,0 +1,19 @@
+{
+    "title": "Bite",
+    "pytron_version": "0.3.0",
+    "frontend_framework": "react",
+    "dimensions": [
+        700,
+        400
+    ],
+    "version": "0.3.0",
+    "frameless": true,
+    "debug": false,
+    "default_context_menu": false,
+    "url": "frontend/dist/index.html",
+    "author": "Ghua8088",
+    "description": "Bite through your problems instantly",
+    "copyright": "Copyright © 2025 Ghua8088",
+    "close_to_tray": true,
+    "icon": "Bite.ico"
+}

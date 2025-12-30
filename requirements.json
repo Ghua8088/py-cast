@@ -1,0 +1,12 @@
+{
+    "dependencies": [
+        "beautifulsoup4==4.14.3",
+        "pillow==12.0.0",
+        "psutil==7.2.0",
+        "pyperclip==1.11.0",
+        "pytron-kit==0.3.0",
+        "pywin32==311",
+        "requests==2.32.5",
+        "send2trash==1.8.3"
+    ]
+}
