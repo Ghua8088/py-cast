@@ -11,7 +11,8 @@
   },
   "dependencies": {
     "lucide-react": "^0.562.0",
-    "pytron-client": "^0.1.8",
+    "pytron-client": "^0.2.1",
+    "pytron-ui": "^0.1.7",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

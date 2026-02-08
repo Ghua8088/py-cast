@@ -1,198 +1,130 @@
 import { useState, useEffect, useRef } from 'react'
 import pytron from 'pytron-client'
-import {
-  Calculator, FileText, Terminal, Scissors, Search,
-  Youtube, Github, Lock, Moon, Trash2, HelpCircle,
-  Code, Globe, Gamepad2, File, Folder, Clipboard,
-  Smartphone, Monitor, Hash, Star, LayoutGrid,
-  Settings as SettingsIcon, Plus, X, ArrowLeft, Link as LinkIcon, Download, RefreshCw
-} from 'lucide-react'
+import { Star, Search, Plus } from 'lucide-react'
 import './App.css'
 
-// Icon mapping helper
-const getIcon = (item) => {
-  // If it's a native base64 image, render nothing here (handled in JSX)
-  if (item.is_img) return null;
-
-  // keyword based mapping for lucide
-  const name = item.name.toLowerCase();
-  const cat = item.cat.toLowerCase();
-
-  if (item.id === 'calc') return <Calculator size={20} />;
-  if (item.id === 'note') return <FileText size={20} />;
-  if (item.id === 'term') return <Terminal size={20} />;
-  if (item.id === 'snip') return <Scissors size={20} />;
-  if (item.id === 'google') return <Globe size={20} />;
-  if (item.id === 'yt') return <Youtube size={20} />;
-  if (item.id === 'gh') return <Github size={20} />;
-  if (item.id === 'lock') return <Lock size={20} />;
-  if (item.id === 'sleep') return <Moon size={20} />;
-  if (item.id === 'clean') return <Trash2 size={20} />;
-  if (item.id === 'help') return <HelpCircle size={20} />;
-  if (item.id === 'settings') return <SettingsIcon size={20} />;
-  if (item.cat === 'Calc') return <Hash size={20} />;
-  if (item.cat === 'Clipboard') return <Clipboard size={20} />;
-  if (item.cat === 'Custom') return <LinkIcon size={20} />;
-
-  // Category fallbacks
-  if (cat === 'files') {
-    return item.icon.includes('folder') || item.icon === '📁' ? <Folder size={20} /> : <File size={20} />;
-  }
-
-  // Generic App Fallbacks if no native icon found
-  if (name.includes('code')) return <Code size={20} />;
-  if (name.includes('game')) return <Gamepad2 size={20} />;
-  return <LayoutGrid size={20} />;
-}
-
-function SettingsView({ onClose }) {
-  const [shortcuts, setShortcuts] = useState([])
-  const [form, setForm] = useState({ keyword: '', name: '', url: '' })
-
-  useEffect(() => {
-    pytron.get_user_shortcuts().then(setShortcuts)
-  }, [])
-
-  const handleAdd = async () => {
-    if (!form.keyword || !form.url) return;
-    const newShortcuts = await pytron.add_shortcut(form.keyword, form.name || form.keyword, form.url)
-    setShortcuts(newShortcuts)
-    setForm({ keyword: '', name: '', url: '' })
-  }
-
-  const handleDelete = async (id) => {
-    const newShortcuts = await pytron.remove_shortcut(id)
-    setShortcuts(newShortcuts)
-  }
-
-  return (
-    <div className="settings-view">
-      <div className="settings-header">
-        <div className="back-btn" onClick={onClose}><ArrowLeft size={18} /></div>
-        <h3>Manage Search Shortcuts</h3>
-      </div>
-
-      <div className="add-shortcut-form">
-        <input
-          placeholder="Keyword (e.g. 'yt')"
-          value={form.keyword}
-          onChange={e => setForm({ ...form, keyword: e.target.value })}
-          className="st-input"
-        />
-        <input
-          placeholder="Name"
-          value={form.name}
-          onChange={e => setForm({ ...form, name: e.target.value })}
-          className="st-input"
-        />
-        <input
-          placeholder="URL (e.g. youtube.com/results?q=)"
-          value={form.url}
-          onChange={e => setForm({ ...form, url: e.target.value })}
-          className="st-input full"
-        />
-        <button className="st-btn" onClick={handleAdd}>
-          <Plus size={14} /> Add Shortcut
-        </button>
-      </div>
-
-      <div className="shortcuts-list">
-        {shortcuts.map(s => (
-          <div className="shortcut-item" key={s.id}>
-            <div className="sc-icon"><LinkIcon size={14} /></div>
-            <div className="sc-info">
-              <span className="sc-key">{s.id}</span>
-              <span className="sc-url">{s.url}</span>
-            </div>
-            <div className="sc-del" onClick={() => handleDelete(s.id)}>
-              <Trash2 size={14} />
-            </div>
-          </div>
-        ))}
-        {shortcuts.length === 0 && <div className="empty-st">No custom shortcuts added.</div>}
-      </div>
-
-      <UpdaterSection />
-    </div>
-  )
-}
-
-function UpdaterSection() {
-  const [status, setStatus] = useState('idle'); // idle, checking, available, updating
-  const [updateInfo, setUpdateInfo] = useState(null);
-  const [progress, setProgress] = useState(0);
-
-  useEffect(() => {
-    const onProgress = (e) => setProgress(e.detail);
-    window.addEventListener('pytron:update_progress', onProgress);
-    return () => window.removeEventListener('pytron:update_progress', onProgress);
-  }, []);
-
-  const check = async () => {
-    setStatus('checking');
-    try {
-      const info = await pytron.check_update();
-      if (info) {
-        setUpdateInfo(info);
-        setStatus('available');
-      } else {
-        setStatus('idle');
-        pytron.notify('Up to Date', 'You are running the latest version.', 'success');
-      }
-    } catch (e) {
-      setStatus('idle');
-      console.error(e);
-      pytron.notify('Update Check Failed', 'Check internet connection.', 'error');
-    }
-  };
-
-  const install = async () => {
-    if (!updateInfo) return;
-    setStatus('updating');
-    await pytron.install_update(updateInfo);
-  };
-
-  return (
-    <div className="updater-section">
-      {status === 'idle' && (
-        <button className="st-btn secondary" onClick={check} style={{ width: '100%', marginTop: '10px' }}>
-          <RefreshCw size={14} /> Check for Updates
-        </button>
-      )}
-
-      {status === 'checking' && (
-        <div className="update-status"><RefreshCw size={14} className="spin" /> Checking...</div>
-      )}
-
-      {status === 'available' && (
-        <div className="update-card">
-          <div className="up-info">
-            <span className="up-ver">Version {updateInfo.version} Available</span>
-            <span className="up-notes">{updateInfo.notes}</span>
-          </div>
-          <button className="st-btn primary" onClick={install}>
-            <Download size={14} /> Update Now
-          </button>
-        </div>
-      )}
-
-      {status === 'updating' && (
-        <div className="update-progress">
-          <span>Downloading Update... {progress}%</span>
-          <div className="prog-bar"><div className="prog-fill" style={{ width: `${progress}%` }}></div></div>
-        </div>
-      )}
-    </div>
-  )
-}
+// Modular Components
+import SearchScreen from './components/SearchScreen'
+import SettingsView from './components/SettingsView'
+import ScratchpadScreen from './components/ScratchpadScreen'
+import ActionMenu from './components/ActionMenu'
 
 function App() {
-  const [view, setView] = useState('search') // 'search' | 'settings'
+  const [view, setView] = useState('search') // 'search' | 'settings' | 'scratchpad'
+  const [themeColor, setThemeColor] = useState('#5e5ce6')
+  const [hideFooter, setHideFooter] = useState(false)
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
-  const [selectedIndex, setSelectedIndex] = useState(0)
+  const [selectedIndex, setSelectedIndex] = useState(-1)
   const [sysInfo, setSysInfo] = useState({ cpu: 0, mem: 0 })
-  const inputRef = useRef(null)
+  // eslint-disable-next-line no-unused-vars
+  const [mouseActive, setMouseActive] = useState(false)
+  const [showActionMenu, setShowActionMenu] = useState(false)
+  const [scratchContent, setScratchContent] = useState('')
+
+  // Single source of truth for the event listeners to prevent stale closures
+  // We update this SYNCHRONOUSLY during render to avoid useEffect race conditions
+  const stateRef = useRef({ results, selectedIndex, query, view, showActionMenu, isTransitioning: false });
+  const lastExecTime = useRef(0);
+
+  stateRef.current = {
+    results,
+    selectedIndex,
+    query,
+    view,
+    showActionMenu,
+    isTransitioning: stateRef.current.isTransitioning
+  };
+
+  const interactionLock = useRef(false)
+  const execLock = useRef(false)
+  const resolving = useRef(new Set())
+  const lastPos = useRef({ x: 0, y: 0 })
+
+  useEffect(() => {
+    pytron.get_settings().then(s => {
+      if (s?.theme_color) setThemeColor(s.theme_color)
+      setHideFooter(!!s?.hide_footer)
+    })
+
+    if (view === 'scratchpad') {
+      pytron.get_scratchpad().then(setScratchContent)
+    }
+  }, [view]);
+
+  useEffect(() => {
+    const handleSettingsUpdate = () => {
+      pytron.get_settings().then(s => {
+        if (s?.theme_color) setThemeColor(s.theme_color)
+        setHideFooter(!!s?.hide_footer)
+      })
+    }
+    window.addEventListener('settings_updated', handleSettingsUpdate)
+
+    pytron.on('show_view', (v) => {
+      setView(v)
+      pytron.show()
+    })
+
+    return () => {
+      window.removeEventListener('settings_updated', handleSettingsUpdate)
+    }
+  }, [])
+
+  useEffect(() => {
+    const isSearch = view === 'search';
+    const isZen = hideFooter && query.trim().length === 0;
+    const isEmpty = query.trim().length === 0;
+
+    let targetHeight = 450;
+    if (view === 'settings' || view === 'scratchpad') {
+      targetHeight = 550;
+    } else if (isSearch && isZen) {
+      targetHeight = 65;
+    }
+
+    pytron.set_window_size(750, targetHeight);
+  }, [view, query, hideFooter, results.length]);
+
+  const saveScratch = (val) => {
+    setScratchContent(val);
+    pytron.save_scratchpad(val);
+  };
+
+  useEffect(() => {
+    // Lazy Icon Resolution
+    const activeItem = results[selectedIndex];
+    if (activeItem?.resolve_path && !resolving.current.has(activeItem.id)) {
+      resolving.current.add(activeItem.id);
+      pytron.resolve_icon(activeItem.resolve_path).then(newUrl => {
+        setResults(prev => prev.map(item =>
+          item.id === activeItem.id ? { ...item, icon: newUrl || item.icon, is_img: !!newUrl, resolve_path: null } : item
+        ));
+      });
+    }
+  }, [selectedIndex, results]);
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      const dx = Math.abs(e.clientX - lastPos.current.x)
+      const dy = Math.abs(e.clientY - lastPos.current.y)
+      if (dx > 10 || dy > 10) {
+        interactionLock.current = false;
+        setMouseActive(true);
+      }
+      lastPos.current = { x: e.clientX, y: e.clientY }
+    }
+    window.addEventListener('mousemove', handleMouseMove)
+    return () => window.removeEventListener('mousemove', handleMouseMove)
+  }, [])
+
+  useEffect(() => {
+    const handleBlur = () => {
+      pytron.hide();
+    };
+    window.addEventListener('blur', handleBlur);
+    return () => window.removeEventListener('blur', handleBlur);
+  }, []);
 
   useEffect(() => {
     pytron.waitForBackend().then(() => {
@@ -207,11 +139,27 @@ function App() {
   }, [])
 
   const [refreshSeq, setRefreshSeq] = useState(0);
+  const onWfPrompt = () => {
+    pytron.add_workflow().then(res => {
+      if (res.success) {
+        pytron.notify("Workflow Added", `Imported ${res.name} successfully`, "success");
+        setRefreshSeq(p => p + 1);
+      } else if (res.error !== "No file selected") {
+        pytron.notify("Error", res.error || "Failed to add workflow", "error");
+      }
+    });
+  };
 
   useEffect(() => {
     const onRefresh = () => setRefreshSeq(p => p + 1);
+
     window.addEventListener('pytron:refresh', onRefresh);
-    return () => window.removeEventListener('pytron:refresh', onRefresh);
+    window.addEventListener('pytron:create_workflow_prompt', onWfPrompt);
+    window.onWfPrompt = onWfPrompt; // Expose for other components
+    return () => {
+      window.removeEventListener('pytron:refresh', onRefresh);
+      window.removeEventListener('pytron:create_workflow_prompt', onWfPrompt);
+    };
   }, []);
 
   useEffect(() => {
@@ -223,7 +171,13 @@ function App() {
         const data = await pytron.search_items(query)
         if (!ignored) {
           setResults(data)
-          setSelectedIndex(0)
+          if (query.trim() === '') {
+            setSelectedIndex(-1);
+          } else {
+            setSelectedIndex(prev => (prev === -1 || prev >= data.length) ? 0 : prev);
+          }
+          setMouseActive(false)
+          interactionLock.current = true
         }
       } catch (e) {
         console.error("Search failed", e)
@@ -236,145 +190,115 @@ function App() {
     }
   }, [query, view, refreshSeq])
 
+  const executeItem = (item) => {
+    const now = Date.now();
+    if (now - lastExecTime.current < 600) return;
+    if (execLock.current || !item || stateRef.current.isTransitioning) return;
+
+    lastExecTime.current = now;
+    execLock.current = true;
+    stateRef.current.isTransitioning = true;
+
+    const currentQuery = stateRef.current.query;
+
+    if (item.action === 'settings') {
+      setView('settings');
+      setQuery('');
+    } else if (item.action === 'open_scratch') {
+      setView('scratchpad');
+      setQuery('');
+    } else {
+      pytron.run_item(item, currentQuery);
+      setQuery('');
+    }
+
+    setTimeout(() => {
+      execLock.current = false;
+      stateRef.current.isTransitioning = false;
+    }, 600);
+  };
+
   useEffect(() => {
-    if (view === 'search' && inputRef.current) inputRef.current.focus()
+    if (view === 'search') return;
+    const handlePopKeys = (e) => {
+      if (e.key === 'Escape') setView('search');
+    };
+    window.addEventListener('keydown', handlePopKeys);
+    return () => window.removeEventListener('keydown', handlePopKeys);
+  }, [view]);
+
+  const togglePin = (id) => {
+    pytron.toggle_pin(id).then(() => {
+      pytron.search_items(stateRef.current.query).then(setResults)
+    })
+  }
+
+  useEffect(() => {
+    if (view !== 'search' || showActionMenu) return;
 
     const handleKeyDown = (e) => {
-      if (view === 'settings') {
-        if (e.key === 'Escape') setView('search');
-        return;
-      }
-
-      if (e.key === 'ArrowDown') {
-        setSelectedIndex(prev => Math.min(prev + 1, results.length - 1))
-        e.preventDefault()
-      } else if (e.key === 'ArrowUp') {
-        setSelectedIndex(prev => Math.max(prev - 1, 0))
-        e.preventDefault()
-      } else if (e.key === 'Enter') {
-        if (results[selectedIndex]) {
-          const item = results[selectedIndex];
-          if (item.action === 'settings') {
-            setView('settings');
-            setQuery('');
-          } else {
-            pytron.run_item(item, query)
-            setQuery('')
-          }
-        }
-      } else if (e.key === 'Tab') {
-        if (results[selectedIndex]?.id) {
-          pytron.toggle_pin(results[selectedIndex].id).then(() => {
-            pytron.search_items(query).then(setResults)
-          })
-          e.preventDefault()
-        }
-      } else if (e.key === 'Escape') {
+      if (e.key === 'Escape') {
         pytron.hide()
       }
     };
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [results, selectedIndex, query, view])
-
-  const renderHeader = (index) => {
-    const item = results[index]
-    const prev = results[index - 1]
-
-    if (item.pinned) {
-      return index === 0 ? <div className="ray-cat-header">📌 Pinned Favorites</div> : null
-    }
-
-    if (index === 0 || (prev && prev.cat !== item.cat) || (prev && prev.pinned)) {
-      return <div className="ray-cat-header">{item.cat}</div>
-    }
-    return null
-  }
-
-  if (view === 'settings') {
-    return (
-      <div className="ray-container">
-        <SettingsView onClose={() => setView('search')} />
-      </div>
-    )
-  }
+  }, [view, showActionMenu])
 
   return (
-    <div className="ray-container">
-      <div className="ray-search-bar">
-        <div className="ray-search-icon"><Search size={22} color="var(--accent)" /></div>
-        <input
-          ref={inputRef}
-          type="text"
-          placeholder="Search apps, files, or evaluate math..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
+    <div className="ray-container" style={{ '--accent': themeColor }}>
+      {view === 'search' && (
+        <SearchScreen
+          query={query} setQuery={setQuery}
+          results={results} setResults={setResults}
+          selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex}
+          executeItem={executeItem} sysInfo={sysInfo}
+          setShowActionMenu={setShowActionMenu}
+          togglePin={togglePin}
+          hideFooter={hideFooter}
         />
-        <div className="ray-stats">
-          <div className="stat-pill"><span className="stat-label">CPU</span><span className="stat-value">{sysInfo.cpu}%</span></div>
-          <div className="stat-pill"><span className="stat-label">RAM</span><span className="stat-value">{sysInfo.mem}%</span></div>
-        </div>
-      </div>
+      )}
 
-      <div className="ray-results">
-        {results.map((item, index) => (
-          <div key={item.id || index}>
-            {renderHeader(index)}
-            <div
-              className={`ray-item ${index === selectedIndex ? 'active' : ''} ${item.pinned ? 'is-pinned' : ''}`}
-              onClick={() => {
-                if (item.action === 'settings') {
-                  setView('settings');
-                  setQuery('');
-                } else {
-                  pytron.run_item(item, query);
-                }
-              }}
-              onMouseEnter={() => setSelectedIndex(index)}
-            >
-              <div className="ray-item-icon">
-                {item.is_img ? (
-                  <img src={item.icon} alt="" style={{ width: '28px', height: '28px', objectFit: 'contain' }} />
-                ) : (
-                  getIcon(item)
-                )}
-              </div>
-              <div className="ray-item-info">
-                <span className="ray-item-name">
-                  {item.name}
-                  {item.pinned && <Star size={12} fill="#FFD700" stroke="#FFD700" className="pin-star" />}
-                </span>
-                <span className="ray-item-desc">{item.desc}</span>
-              </div>
+      {view === 'settings' && <SettingsView onClose={() => setView('search')} />}
 
-              {index === selectedIndex && (
-                <div className="ray-action-bar">
-                  <div className="ray-action-item"><span className="kbd">TAB</span> {item.pinned ? 'UNPIN' : 'PIN'}</div>
-                  <div className="ray-action-item pulse"><span className="kbd">↵</span> OPEN</div>
-                </div>
-              )}
+      {view === 'scratchpad' && (
+        <ScratchpadScreen
+          content={scratchContent}
+          onSave={saveScratch}
+          onBack={() => setView('search')}
+        />
+      )}
+
+      {showActionMenu && (
+        <ActionMenu
+          item={results[selectedIndex]}
+          query={query}
+          onClose={() => setShowActionMenu(false)}
+          setView={setView}
+          setQuery={setQuery}
+          executeItem={executeItem}
+        />
+      )}
+
+      {((!hideFooter && view === 'search') || (hideFooter && query.trim().length > 0)) && (
+        <div className="ray-footer">
+          <div className="footer-left">
+            <span className="brand">Bite</span>
+            <span className="sep">|</span>
+            <span>v0.3.0 Native</span>
+          </div>
+          <div className="ray-footer-right">
+            {results[selectedIndex]?.url && <div className="hint"><span className="kbd">↵</span> Open Browser</div>}
+            {results[selectedIndex]?.path && <div className="hint"><span className="kbd">↵</span> Open File</div>}
+            {results[selectedIndex]?.action === 'calc_res' && <div className="hint"><span className="kbd">↵</span> Copy Result</div>}
+            <div className="hint secondary"><span className="kbd">CTRL + K</span> Actions</div>
+            <div className="action-button-primary" onClick={() => setShowActionMenu(true)}>
+              Actions
+              <div className="kbd-small">⌘K</div>
             </div>
           </div>
-        ))}
-
-        {results.length === 0 && query && (
-          <div className="ray-no-results">
-            <div className="no-res-icon"><Search size={48} strokeWidth={1} /></div>
-            <p className="dim">No matches for "{query}"</p>
-          </div>
-        )}
-      </div>
-
-      <div className="ray-footer">
-        <div className="footer-left">
-          <span className="brand">Bite</span>
-          <span className="sep">|</span>
-          <span>v0.3.0 Native</span>
         </div>
-        <div className="ray-footer-right">
-          <div className="hint"><span className="kbd">Alt + B</span> to Toggle</div>
-        </div>
-      </div>
+      )}
     </div>
   )
 }

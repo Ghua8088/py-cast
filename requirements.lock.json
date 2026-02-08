@@ -1,0 +1,3032 @@
+{
+    "source": "pytron-smart-harvest",
+    "seeds": [
+        "beautifulsoup4",
+        "pillow",
+        "psutil",
+        "pyperclip",
+        "pytron-kit",
+        "pywin32",
+        "requests",
+        "send2trash"
+    ],
+    "universe": [
+        "stack_data",
+        "types-setuptools",
+        "portend",
+        "docrepr",
+        "gssapi",
+        "send2trash",
+        "markdown-it-py",
+        "matplotlib-inline",
+        "sphinx-notfound-page",
+        "pyroma",
+        "pluggy",
+        "ipython[matplotlib]",
+        "gcsfs",
+        "oauth2client",
+        "hatch",
+        "testscenarios",
+        "click",
+        "sphinxcontrib-serializinghtml",
+        "lz4",
+        "dask",
+        "jaraco.tidelift",
+        "js2py",
+        "scipy",
+        "sphinxcontrib-spelling",
+        "pandas-gbq",
+        "requests",
+        "pyobjc-framework-webkit",
+        "sphinx-favicon",
+        "mistune",
+        "et-xmlfile",
+        "google-api-core",
+        "smbprotocol",
+        "types-requests",
+        "cloudpickle",
+        "pyproject-metadata",
+        "pure-eval",
+        "bandit",
+        "cchardet",
+        "ocifs",
+        "ipywidgets",
+        "pytest!=8.1.*,",
+        "pytest-mypy-testing",
+        "backports.zoneinfo",
+        "pytest-recording",
+        "rstcheck",
+        "grpcio-gcp",
+        "more_itertools",
+        "flake8-annotations",
+        "jinja2",
+        "aioresponses",
+        "tinydb",
+        "flufl.flake8",
+        "array-api-strict",
+        "python-dotenv",
+        "altgraph",
+        "cycler",
+        "psleak",
+        "tables",
+        "nbclient",
+        "aiohttp",
+        "pyxlsb",
+        "shiboken6",
+        "myst-parser",
+        "markdown2",
+        "pyqtwebengine",
+        "pytest-rerunfailures",
+        "pre-commit-uv",
+        "pyee",
+        "cssselect",
+        "pyreadline3",
+        "wavedrom",
+        "jupyter-core!=5.0.*,",
+        "pytest-ignore-flaky",
+        "pytest!=3.3.0,",
+        "pyyaml-env-tag",
+        "google-cloud-bigquery[bigquery_v2,bqstorage,geopandas,ipython,ipywidgets,matplotlib,opentelemetry,pandas,tqdm]",
+        "nanoarrow",
+        "flake8-bugbear",
+        "dropbox",
+        "pyqt5",
+        "typing-inspection",
+        "sphinx_toml",
+        "nbformat",
+        "docutils-stubs",
+        "paramiko",
+        "psycopg[binary]",
+        "diff-cover",
+        "comm",
+        "bleach[css]!=5.0.0",
+        "h2",
+        "mkdocs-include-markdown-plugin",
+        "python-snappy",
+        "sphinx-inline-tabs",
+        "google-api-core[grpc]",
+        "coverage",
+        "freezegun~=1.0",
+        "ipython[test]",
+        "markdown~=3.4",
+        "railroad-diagrams",
+        "mypy",
+        "doc8",
+        "jaraco.functools",
+        "python-calamine",
+        "pytest-xdist[psutil]",
+        "mdx_gh_links",
+        "pytest-mock",
+        "pydevtool",
+        "rich-click",
+        "threadpoolctl",
+        "vulture",
+        "flaky",
+        "gprof2dot",
+        "pytest-enabler",
+        "black",
+        "rsa",
+        "cffi~=1.17",
+        "jaraco.itertools",
+        "jaraco.context",
+        "zopfli",
+        "pydantic",
+        "bcrypt",
+        "jedi",
+        "pycparser",
+        "pyu2f",
+        "mkdocs-get-deps",
+        "pep440",
+        "pytest-jupyter[client]",
+        "argon2-cffi",
+        "markdown",
+        "pydata-sphinx-theme",
+        "pydantic-core",
+        "mpmath",
+        "flake8-literal",
+        "uvloop",
+        "autodoc-traits",
+        "bigquery-magics",
+        "fastparquet",
+        "pooch",
+        "distributed",
+        "pytest-xdist",
+        "coverage-enable-subprocess",
+        "python-dateutil",
+        "markdown-it-pyrs",
+        "pyside6",
+        "notebook",
+        "jupyterlite-sphinx",
+        "trio-typing",
+        "kiwisolver",
+        "gmpy2",
+        "pycairo",
+        "tabulate",
+        "pip",
+        "rich",
+        "pyperclip",
+        "pygments",
+        "nuitka",
+        "mccabe",
+        "fixtures",
+        "sphinx-design",
+        "future",
+        "isort",
+        "certifi",
+        "pybind11!=2.13.3,",
+        "responses",
+        "pytest!=7.0.0,!=7.0.1,",
+        "kerchunk",
+        "shapely",
+        "pyyaml",
+        "nh3",
+        "pytest",
+        "pyzmq",
+        "proselint",
+        "asv",
+        "testtools",
+        "numexpr",
+        "watchdog",
+        "cached-property",
+        "asyncpg",
+        "wcwidth",
+        "pyfakefs",
+        "pyflakes",
+        "ninja",
+        "numba",
+        "stestr",
+        "pg8000",
+        "pytest-cov[toml]",
+        "playwright",
+        "aiohttp!=4.0.0a0,!=4.0.0a1",
+        "qtpy",
+        "pytest-instafail",
+        "jupyter-client",
+        "skia-pathops",
+        "littleutils",
+        "flake8-requirements",
+        "flask",
+        "ipython-pygments-lexers",
+        "typing_extensions!=3.10.0.1",
+        "pymssql",
+        "werkzeug",
+        "jaraco.develop",
+        "multidict",
+        "pyjwt",
+        "types-pillow",
+        "pympler",
+        "latex2mathml",
+        "coverage[toml]",
+        "yarl",
+        "annotated-types",
+        "mistune~=3.0",
+        "rst.linker",
+        "setuptools_scm",
+        "urllib3",
+        "trio",
+        "asttokens",
+        "traitlets",
+        "cython-lint",
+        "bokeh",
+        "aiosqlite",
+        "pyarrow",
+        "readme-renderer",
+        "cryptography-vectors",
+        "cachetools",
+        "towncrier",
+        "linkify-it-py",
+        "snowballstemmer",
+        "db-dtypes",
+        "furo",
+        "typing_extensions",
+        "backports.tarfile",
+        "sphinxcontrib-towncrier",
+        "pymysql",
+        "id[test,",
+        "google-api-core!=2.0.*,!=2.1.*,!=2.2.*,!=2.3.0,",
+        "types-pywin32",
+        "grpcio-tools",
+        "idna",
+        "moto[server]",
+        "trove-classifiers",
+        "protobuf!=4.21.0,!=4.21.1,!=4.21.2,!=4.21.3,!=4.21.4,!=4.21.5,",
+        "myst-nb",
+        "pynacl",
+        "nbsphinx",
+        "adbc-driver-sqlite",
+        "flake8-import-order",
+        "pytest-asyncio!=0.22.0",
+        "secretstorage",
+        "types-pyyaml",
+        "rfc3986",
+        "pygobject",
+        "rfc3339-validator",
+        "sphinx_rtd_theme",
+        "sphinx-rtd-theme",
+        "pytest-cov",
+        "pep8-naming",
+        "aiosignal",
+        "webcolors",
+        "ghp-import",
+        "six",
+        "testpath",
+        "pyparsing",
+        "lxml",
+        "jupyter_sphinx",
+        "pyperf",
+        "flake8-black",
+        "argon2-cffi-bindings",
+        "propcache",
+        "pre-commit",
+        "sphinx-remove-toctrees",
+        "arro3-compute",
+        "decorator",
+        "pyenchant~=3.2",
+        "typeguard",
+        "intersphinx-registry",
+        "aiomysql",
+        "flake8-pyproject",
+        "astroid",
+        "google-re2",
+        "binary",
+        "regex",
+        "alabaster",
+        "interegular",
+        "asyncmy!=0.2.4,!=0.2.6,",
+        "mkdocs-nature",
+        "google-auth",
+        "genshi",
+        "pyftpdlib",
+        "dill",
+        "scipy-doctest",
+        "xmlschema",
+        "dask[dataframe,test]",
+        "validictory",
+        "cython",
+        "rfc3987",
+        "sarif-om",
+        "sphinx-copybutton",
+        "anyio",
+        "gitpython",
+        "appdirs",
+        "sphinx-autodoc-typehints",
+        "markupsafe",
+        "psycopg2-binary",
+        "odfpy",
+        "grpcio",
+        "nox[uv]",
+        "sphinx-book-theme~=1.0",
+        "executing",
+        "attrs",
+        "pytest-subprocess",
+        "wmi",
+        "nest-asyncio",
+        "google-cloud-bigquery-storage",
+        "ruff",
+        "macholib",
+        "intersphinx_registry",
+        "fqdn",
+        "sphinxcontrib-github-alt",
+        "pyasn1",
+        "ipykernel",
+        "docutils",
+        "dropboxdrivefs",
+        "pycodestyle",
+        "contourpy[test-no-images]",
+        "mariadb!=1.1.10,!=1.1.2,!=1.1.5,",
+        "sphinx",
+        "parso",
+        "build",
+        "flake8-datetimez",
+        "protobuf!=4.21.1,!=4.21.2,!=4.21.3,!=4.21.4,!=4.21.5,",
+        "cryptography",
+        "cogapp",
+        "pillow",
+        "virtualenv",
+        "pefile",
+        "email-validator",
+        "pytest-mypy-plugins",
+        "frozenlist",
+        "jupyterlite-pyodide-kernel",
+        "psycopg2cffi",
+        "django",
+        "jupyter-console",
+        "pytest-asyncio",
+        "jaraco.path",
+        "readthedocs-sphinx-ext",
+        "pytest-perf",
+        "pyenchant",
+        "dateparser",
+        "appnope",
+        "bottleneck",
+        "imageio",
+        "filelock",
+        "pyproject-hooks!=1.1",
+        "imagesize",
+        "googleapis-common-protos",
+        "zope.interface",
+        "grpcio-status",
+        "mkdocs-section-index",
+        "numpy",
+        "opentelemetry-sdk",
+        "pytz",
+        "numpydoc",
+        "debugpy",
+        "doit",
+        "meson-python",
+        "bump",
+        "types-psutil",
+        "pyinstaller",
+        "google-auth[aiohttp]",
+        "referencing",
+        "jaraco.packaging",
+        "pretend",
+        "pandocfilters",
+        "xlsxwriter",
+        "pywin32",
+        "keyring",
+        "abi3audit",
+        "opentelemetry-instrumentation",
+        "dataframe-api-compat",
+        "pytest-mypy",
+        "mkdocstrings[python]",
+        "flake8-bandit",
+        "moto",
+        "proto-plus",
+        "watchfiles",
+        "pygobject-stubs",
+        "jupyterlab-pygments",
+        "google-crc32c",
+        "requests-toolbelt!=0.9.0,",
+        "arrow",
+        "cffi",
+        "libarchive-c",
+        "munkres",
+        "mysql-connector-python",
+        "slack-sdk",
+        "charset_normalizer",
+        "pytest-ruff",
+        "pytest-benchmark",
+        "mkdocs",
+        "exceptiongroup",
+        "mkdocs-gen-files",
+        "jaraco.envs",
+        "pyside6_essentials",
+        "covdefaults",
+        "arro3-core",
+        "sphinx-lint",
+        "defusedxml",
+        "jaraco.text",
+        "sphinx-book-theme",
+        "openpyxl",
+        "mdurl~=0.1",
+        "flake8-use-fstring",
+        "pytest-timeout",
+        "pygit2",
+        "pytron-kit",
+        "fusepy",
+        "shtab",
+        "pywin32-ctypes",
+        "pyinstaller-hooks-contrib",
+        "tox",
+        "jupyter_ai",
+        "uharfbuzz",
+        "tzdata",
+        "fsspec",
+        "lief",
+        "wurlitzer",
+        "cx_oracle",
+        "pytest-qt",
+        "jaraco.classes",
+        "itsdangerous",
+        "typing-extensions",
+        "backports-zstd",
+        "opentelemetry-api",
+        "nbval",
+        "pypinfo",
+        "beautifulsoup4",
+        "zarr",
+        "selenium",
+        "uv",
+        "s3fs",
+        "recommonmark",
+        "pysocks!=1.5.7,",
+        "hyperscan",
+        "zipp",
+        "aiohappyeyeballs",
+        "pytest-trio",
+        "scikit-umfpack",
+        "pandas",
+        "id",
+        "wheel",
+        "colorama",
+        "xarray",
+        "packaging",
+        "panflute~=2.3",
+        "brotlicffi",
+        "sphinx-autobuild",
+        "json-spec",
+        "tinyrecord",
+        "tornado",
+        "psutil",
+        "flake8",
+        "blinker",
+        "sphinx-reredirects",
+        "validate-pyproject[all]",
+        "platformdirs",
+        "tomli",
+        "interrogate",
+        "tomlkit",
+        "ini2toml[lite]",
+        "curio",
+        "aioodbc",
+        "toml-sort",
+        "pytest-localserver",
+        "pytest-home",
+        "backports-asyncio-runner",
+        "babel",
+        "flake8-commas",
+        "xlrd",
+        "ordered-set",
+        "tomli-w",
+        "rpds-py",
+        "adbc-driver-postgresql",
+        "invoke",
+        "google-cloud-core",
+        "jsonpointer",
+        "xxhash",
+        "freezegun",
+        "lxml_html_clean",
+        "check-manifest",
+        "oracledb",
+        "pylint",
+        "meson",
+        "pyside6_addons",
+        "stevedore",
+        "xmltodict",
+        "asgiref",
+        "protobuf!=3.20.0,!=3.20.1,!=4.21.0,!=4.21.1,!=4.21.2,!=4.21.3,!=4.21.4,!=4.21.5,",
+        "docopt",
+        "flake8-docstrings",
+        "mergedeep",
+        "lark",
+        "google-resumable-media",
+        "pytest-regressions",
+        "more-itertools",
+        "jupyter-core",
+        "sqlparse",
+        "ipython[matplotlib,test]",
+        "charset-normalizer",
+        "html5lib",
+        "flake8-modern-annotations",
+        "build[virtualenv]",
+        "jeepney",
+        "codecov",
+        "google-cloud-bigquery",
+        "sphinxext-opengraph",
+        "pytest-checkdocs",
+        "brotli",
+        "pyasn1-modules",
+        "pytest-cache",
+        "importlib-metadata",
+        "rfc3986-validator",
+        "jupytext",
+        "simplejson",
+        "execnet",
+        "jsonschema-specifications",
+        "twine",
+        "pyproject_hooks",
+        "uri-template",
+        "greenlet",
+        "xattr",
+        "sqlalchemy",
+        "nbconvert",
+        "pyodbc",
+        "argcomplete",
+        "pexpect",
+        "objgraph",
+        "fonttools",
+        "pathspec",
+        "contourpy[bokeh,docs]",
+        "flake8-noqa",
+        "aiodns",
+        "cmarkgfm",
+        "flake8-typechecking-import",
+        "comtypes",
+        "panel",
+        "commonmark",
+        "isoduration",
+        "olefile",
+        "ipython",
+        "sphinxcontrib-websupport",
+        "sqlcipher3_binary",
+        "types-python-dateutil",
+        "atomicwrites",
+        "commonmark~=0.9",
+        "jaraco.test",
+        "contourpy",
+        "hypothesis",
+        "pyobjc-framework-cocoa",
+        "psycopg2",
+        "fastjsonschema",
+        "chardet",
+        "isort!=5.13,",
+        "sphinx~=8.1.0",
+        "soupsieve",
+        "webencodings",
+        "llvmlite",
+        "toml",
+        "mypy-extensions",
+        "ipython[doc,matplotlib,test,test_extra]",
+        "geopandas",
+        "jschema-to-python",
+        "adlfs",
+        "jsonschema",
+        "iniconfig",
+        "pytokens",
+        "big-o",
+        "ipyparallel",
+        "zstandard",
+        "mdit-py-plugins",
+        "pyreadstat",
+        "tokenize-rt",
+        "flake8-comprehensions",
+        "prompt_toolkit",
+        "pyopenssl",
+        "psycopg",
+        "aiobotocore",
+        "flake8-continuation",
+        "mistletoe~=1.0",
+        "pytest-codspeed",
+        "protobuf",
+        "async-timeout",
+        "pygments-github-lexers",
+        "mkdocs-literate-nav",
+        "setuptools",
+        "tqdm",
+        "importlib_metadata",
+        "matplotlib",
+        "rfc3987-syntax",
+        "twisted",
+        "sympy",
+        "mysqlclient",
+        "unicodedata2",
+        "pytest-randomly",
+        "mock",
+        "check-sdist"
+    ],
+    "packages": {
+        "stack_data": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "types-setuptools": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "portend": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "docrepr": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "gssapi": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "send2trash": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\send2trash"
+        },
+        "markdown-it-py": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\..\\..\\Scripts"
+        },
+        "matplotlib-inline": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "sphinx-notfound-page": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pyroma": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pluggy": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "ipython[matplotlib]": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "gcsfs": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "oauth2client": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "hatch": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "testscenarios": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "click": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "sphinxcontrib-serializinghtml": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "lz4": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "dask": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "jaraco.tidelift": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "js2py": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "scipy": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "sphinxcontrib-spelling": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pandas-gbq": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "requests": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\requests"
+        },
+        "pyobjc-framework-webkit": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "sphinx-favicon": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "mistune": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "et-xmlfile": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "google-api-core": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "smbprotocol": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "types-requests": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "cloudpickle": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pyproject-metadata": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pure-eval": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "bandit": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "cchardet": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "ocifs": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "ipywidgets": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pytest!=8.1.*,": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pytest-mypy-testing": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "backports.zoneinfo": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pytest-recording": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "rstcheck": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "grpcio-gcp": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "more_itertools": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\more_itertools"
+        },
+        "flake8-annotations": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "jinja2": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "aioresponses": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "tinydb": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "flufl.flake8": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "array-api-strict": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "python-dotenv": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "altgraph": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\altgraph"
+        },
+        "cycler": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "psleak": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "tables": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "nbclient": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "aiohttp": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pyxlsb": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "shiboken6": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "myst-parser": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "markdown2": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pyqtwebengine": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pytest-rerunfailures": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pre-commit-uv": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pyee": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "cssselect": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pyreadline3": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "wavedrom": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "jupyter-core!=5.0.*,": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pytest-ignore-flaky": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pytest!=3.3.0,": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pyyaml-env-tag": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "google-cloud-bigquery[bigquery_v2,bqstorage,geopandas,ipython,ipywidgets,matplotlib,opentelemetry,pandas,tqdm]": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "nanoarrow": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "flake8-bugbear": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "dropbox": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pyqt5": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "typing-inspection": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\typing_inspection"
+        },
+        "sphinx_toml": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "nbformat": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "docutils-stubs": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "paramiko": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "psycopg[binary]": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "diff-cover": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "comm": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "bleach[css]!=5.0.0": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "h2": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "mkdocs-include-markdown-plugin": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "python-snappy": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "sphinx-inline-tabs": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "google-api-core[grpc]": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "coverage": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "freezegun~=1.0": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "ipython[test]": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "markdown~=3.4": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "railroad-diagrams": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "mypy": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "doc8": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "jaraco.functools": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\jaraco\\functools"
+        },
+        "python-calamine": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pytest-xdist[psutil]": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "mdx_gh_links": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pytest-mock": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pydevtool": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "rich-click": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "threadpoolctl": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "vulture": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "flaky": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "gprof2dot": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pytest-enabler": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "black": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "rsa": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "cffi~=1.17": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "jaraco.itertools": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "jaraco.context": {
+            "strategy": "COLLECT_ALL",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\jaraco\\context"
+        },
+        "zopfli": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pydantic": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\pydantic"
+        },
+        "bcrypt": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "jedi": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pycparser": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\pycparser"
+        },
+        "pyu2f": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "mkdocs-get-deps": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pep440": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pytest-jupyter[client]": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "argon2-cffi": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "markdown": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pydata-sphinx-theme": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pydantic-core": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\pydantic_core"
+        },
+        "mpmath": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "flake8-literal": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "uvloop": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "autodoc-traits": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "bigquery-magics": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "fastparquet": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pooch": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "distributed": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pytest-xdist": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "coverage-enable-subprocess": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "python-dateutil": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "markdown-it-pyrs": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pyside6": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "notebook": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "jupyterlite-sphinx": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "trio-typing": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "kiwisolver": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "gmpy2": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pycairo": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "tabulate": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pip": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\pip"
+        },
+        "rich": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\rich"
+        },
+        "pyperclip": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\pyperclip"
+        },
+        "pygments": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\pygments"
+        },
+        "nuitka": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\nuitka"
+        },
+        "mccabe": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "fixtures": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "sphinx-design": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "future": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "isort": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "certifi": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\certifi"
+        },
+        "pybind11!=2.13.3,": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "responses": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pytest!=7.0.0,!=7.0.1,": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "kerchunk": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "shapely": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pyyaml": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "nh3": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pytest": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pyzmq": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "proselint": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "asv": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "testtools": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "numexpr": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "watchdog": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "cached-property": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "asyncpg": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "wcwidth": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pyfakefs": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pyflakes": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "ninja": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "numba": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "stestr": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pg8000": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pytest-cov[toml]": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "playwright": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "aiohttp!=4.0.0a0,!=4.0.0a1": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "qtpy": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pytest-instafail": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "jupyter-client": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "skia-pathops": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "littleutils": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "flake8-requirements": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "flask": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "ipython-pygments-lexers": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "typing_extensions!=3.10.0.1": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pymssql": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "werkzeug": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "jaraco.develop": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "multidict": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pyjwt": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "types-pillow": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pympler": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "latex2mathml": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "coverage[toml]": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "yarl": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "annotated-types": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\annotated_types"
+        },
+        "mistune~=3.0": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "rst.linker": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "setuptools_scm": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "urllib3": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\urllib3"
+        },
+        "trio": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "asttokens": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "traitlets": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "cython-lint": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "bokeh": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "aiosqlite": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pyarrow": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "readme-renderer": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "cryptography-vectors": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "cachetools": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "towncrier": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "linkify-it-py": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "snowballstemmer": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "db-dtypes": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "furo": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "typing_extensions": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\typing_extensions.py"
+        },
+        "backports.tarfile": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "sphinxcontrib-towncrier": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pymysql": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "id[test,": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "google-api-core!=2.0.*,!=2.1.*,!=2.2.*,!=2.3.0,": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "types-pywin32": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "grpcio-tools": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "idna": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\idna"
+        },
+        "moto[server]": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "trove-classifiers": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "protobuf!=4.21.0,!=4.21.1,!=4.21.2,!=4.21.3,!=4.21.4,!=4.21.5,": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "myst-nb": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pynacl": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "nbsphinx": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "adbc-driver-sqlite": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "flake8-import-order": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pytest-asyncio!=0.22.0": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "secretstorage": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "types-pyyaml": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "rfc3986": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pygobject": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "rfc3339-validator": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "sphinx_rtd_theme": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "sphinx-rtd-theme": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pytest-cov": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pep8-naming": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "aiosignal": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "webcolors": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "ghp-import": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "six": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "testpath": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pyparsing": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "lxml": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "jupyter_sphinx": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pyperf": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "flake8-black": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "argon2-cffi-bindings": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "propcache": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pre-commit": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "sphinx-remove-toctrees": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "arro3-compute": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "decorator": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pyenchant~=3.2": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "typeguard": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "intersphinx-registry": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "aiomysql": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "flake8-pyproject": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "astroid": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "google-re2": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "binary": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "regex": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "alabaster": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "interegular": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "asyncmy!=0.2.4,!=0.2.6,": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "mkdocs-nature": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "google-auth": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "genshi": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pyftpdlib": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "dill": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "scipy-doctest": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "xmlschema": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "dask[dataframe,test]": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "validictory": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "cython": {
+            "strategy": "COLLECT_ALL",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\cython"
+        },
+        "rfc3987": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "sarif-om": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "sphinx-copybutton": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "anyio": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\anyio"
+        },
+        "gitpython": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "appdirs": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "sphinx-autodoc-typehints": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "markupsafe": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "psycopg2-binary": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "odfpy": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "grpcio": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "nox[uv]": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "sphinx-book-theme~=1.0": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "executing": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "attrs": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pytest-subprocess": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "wmi": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "nest-asyncio": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "google-cloud-bigquery-storage": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "ruff": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "macholib": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "intersphinx_registry": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "fqdn": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "sphinxcontrib-github-alt": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pyasn1": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "ipykernel": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "docutils": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "dropboxdrivefs": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pycodestyle": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "contourpy[test-no-images]": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "mariadb!=1.1.10,!=1.1.2,!=1.1.5,": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "sphinx": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "parso": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "build": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "flake8-datetimez": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "protobuf!=4.21.1,!=4.21.2,!=4.21.3,!=4.21.4,!=4.21.5,": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "cryptography": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\cryptography"
+        },
+        "cogapp": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pillow": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\PIL"
+        },
+        "virtualenv": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pefile": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\pefile.py"
+        },
+        "email-validator": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pytest-mypy-plugins": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "frozenlist": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "jupyterlite-pyodide-kernel": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "psycopg2cffi": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "django": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "jupyter-console": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pytest-asyncio": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "jaraco.path": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "readthedocs-sphinx-ext": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pytest-perf": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pyenchant": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "dateparser": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "appnope": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "bottleneck": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "imageio": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "filelock": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pyproject-hooks!=1.1": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "imagesize": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "googleapis-common-protos": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "zope.interface": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "grpcio-status": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "mkdocs-section-index": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "numpy": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "opentelemetry-sdk": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pytz": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "numpydoc": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "debugpy": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "doit": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "meson-python": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "bump": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "types-psutil": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pyinstaller": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\pyinstaller"
+        },
+        "google-auth[aiohttp]": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "referencing": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "jaraco.packaging": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pretend": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pandocfilters": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "xlsxwriter": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pywin32": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\..\\..\\Scripts\\__pycache__"
+        },
+        "keyring": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\keyring"
+        },
+        "abi3audit": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "opentelemetry-instrumentation": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "dataframe-api-compat": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pytest-mypy": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "mkdocstrings[python]": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "flake8-bandit": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "moto": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "proto-plus": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "watchfiles": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\watchfiles"
+        },
+        "pygobject-stubs": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "jupyterlab-pygments": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "google-crc32c": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "requests-toolbelt!=0.9.0,": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "arrow": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "cffi": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\cffi"
+        },
+        "libarchive-c": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "munkres": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "mysql-connector-python": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "slack-sdk": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "charset_normalizer": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\charset_normalizer"
+        },
+        "pytest-ruff": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pytest-benchmark": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "mkdocs": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "exceptiongroup": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "mkdocs-gen-files": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "jaraco.envs": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pyside6_essentials": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "covdefaults": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "arro3-core": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "sphinx-lint": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "defusedxml": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "jaraco.text": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "sphinx-book-theme": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "openpyxl": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "mdurl~=0.1": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "flake8-use-fstring": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pytest-timeout": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pygit2": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pytron-kit": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\..\\..\\Scripts"
+        },
+        "fusepy": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "shtab": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pywin32-ctypes": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\pywin32_ctypes-0.2.3.dist-info"
+        },
+        "pyinstaller-hooks-contrib": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\_pyinstaller_hooks_contrib"
+        },
+        "tox": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "jupyter_ai": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "uharfbuzz": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "tzdata": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "fsspec": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "lief": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\lief"
+        },
+        "wurlitzer": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "cx_oracle": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pytest-qt": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "jaraco.classes": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\jaraco.classes-3.4.0.dist-info"
+        },
+        "itsdangerous": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "typing-extensions": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "backports-zstd": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "opentelemetry-api": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "nbval": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pypinfo": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "beautifulsoup4": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\beautifulsoup4-4.14.3.dist-info"
+        },
+        "zarr": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "selenium": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "uv": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "s3fs": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "recommonmark": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pysocks!=1.5.7,": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "hyperscan": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "zipp": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "aiohappyeyeballs": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pytest-trio": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "scikit-umfpack": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pandas": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "id": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "wheel": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "colorama": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "xarray": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "packaging": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\packaging"
+        },
+        "panflute~=2.3": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "brotlicffi": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "sphinx-autobuild": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "json-spec": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "tinyrecord": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "tornado": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "psutil": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\psutil"
+        },
+        "flake8": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "blinker": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "sphinx-reredirects": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "validate-pyproject[all]": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "platformdirs": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "tomli": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "interrogate": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "tomlkit": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "ini2toml[lite]": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "curio": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "aioodbc": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "toml-sort": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pytest-localserver": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pytest-home": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "backports-asyncio-runner": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "babel": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "flake8-commas": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "xlrd": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "ordered-set": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\ordered_set"
+        },
+        "tomli-w": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "rpds-py": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "adbc-driver-postgresql": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "invoke": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "google-cloud-core": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "jsonpointer": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "xxhash": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "freezegun": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "lxml_html_clean": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "check-manifest": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "oracledb": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pylint": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "meson": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pyside6_addons": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "stevedore": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "xmltodict": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "asgiref": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "protobuf!=3.20.0,!=3.20.1,!=4.21.0,!=4.21.1,!=4.21.2,!=4.21.3,!=4.21.4,!=4.21.5,": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "docopt": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "flake8-docstrings": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "mergedeep": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "lark": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "google-resumable-media": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pytest-regressions": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "more-itertools": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\more_itertools"
+        },
+        "jupyter-core": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "sqlparse": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "ipython[matplotlib,test]": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "charset-normalizer": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\charset_normalizer"
+        },
+        "html5lib": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "flake8-modern-annotations": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "build[virtualenv]": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "jeepney": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "codecov": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "google-cloud-bigquery": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "sphinxext-opengraph": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pytest-checkdocs": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "brotli": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pyasn1-modules": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pytest-cache": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "importlib-metadata": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "rfc3986-validator": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "jupytext": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "simplejson": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "execnet": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "jsonschema-specifications": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "twine": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pyproject_hooks": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "uri-template": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "greenlet": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "xattr": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "sqlalchemy": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "nbconvert": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pyodbc": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "argcomplete": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pexpect": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "objgraph": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "fonttools": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pathspec": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "contourpy[bokeh,docs]": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "flake8-noqa": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "aiodns": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "cmarkgfm": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "flake8-typechecking-import": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "comtypes": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\comtypes"
+        },
+        "panel": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "commonmark": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "isoduration": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "olefile": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "ipython": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "sphinxcontrib-websupport": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "sqlcipher3_binary": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "types-python-dateutil": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "atomicwrites": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "commonmark~=0.9": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "jaraco.test": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "contourpy": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "hypothesis": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pyobjc-framework-cocoa": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "psycopg2": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "fastjsonschema": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "chardet": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "isort!=5.13,": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "sphinx~=8.1.0": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "soupsieve": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\soupsieve"
+        },
+        "webencodings": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "llvmlite": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "toml": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "mypy-extensions": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "ipython[doc,matplotlib,test,test_extra]": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "geopandas": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "jschema-to-python": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "adlfs": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "jsonschema": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "iniconfig": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pytokens": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "big-o": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "ipyparallel": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "zstandard": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\zstandard"
+        },
+        "mdit-py-plugins": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pyreadstat": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "tokenize-rt": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "flake8-comprehensions": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "prompt_toolkit": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pyopenssl": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "psycopg": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "aiobotocore": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "flake8-continuation": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "mistletoe~=1.0": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pytest-codspeed": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "protobuf": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "async-timeout": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pygments-github-lexers": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "mkdocs-literate-nav": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "setuptools": {
+            "strategy": "STANDARD",
+            "path": "D:\\pytron-projects\\py-cast\\env\\Lib\\site-packages\\setuptools"
+        },
+        "tqdm": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "importlib_metadata": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "matplotlib": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "rfc3987-syntax": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "twisted": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "sympy": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "mysqlclient": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "unicodedata2": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "pytest-randomly": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "mock": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        },
+        "check-sdist": {
+            "strategy": "STANDARD",
+            "path": "unknown"
+        }
+    }
+}

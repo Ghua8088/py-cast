@@ -3,10 +3,10 @@
     "pytron_version": "0.3.0",
     "frontend_framework": "react",
     "dimensions": [
-        700,
-        400
+        750,
+        450
     ],
-    "version": "0.3.0",
+    "version": "0.3.3",
     "frameless": true,
     "debug": false,
     "default_context_menu": false,
