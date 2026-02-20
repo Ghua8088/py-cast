@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 import time
 import platform
@@ -113,6 +114,14 @@ class Bite:
                 "icon": "edit-3",
             },
             {
+                "id": "open_lab",
+                "name": "Python Lab",
+                "action": "open_lab",
+                "desc": "Write & Run Python Scripts",
+                "cat": "Dev",
+                "icon": "code",
+            },
+            {
                 "id": "clean",
                 "name": "Kill All Python",
                 "action": "kill_py",
@@ -151,6 +160,15 @@ class Bite:
                 "desc": "Silence audio",
                 "cat": "System",
                 "icon": "mute",
+            },
+            {
+                "id": "browse_wf",
+                "name": "Browse all Workflows",
+                "type": "term_autofill",
+                "new_query": "wf:",
+                "desc": "List all Python scripts",
+                "cat": "Workflows",
+                "icon": "zap",
             },
             {
                 "id": "wf_folder",
@@ -388,6 +406,62 @@ class Bite:
         self.user_data["scratchpad"] = content
         self._save_config()
         return True
+
+    def get_python_scratch(self):
+        return self.user_data.get("python_scratch", "# Type your Python code here\nprint('Hello from Bite Python Lab!')\n")
+
+    def save_python_scratch(self, code):
+        self.user_data["python_scratch"] = code
+        self._save_config()
+        return True
+
+    def promote_lab_to_workflow(self, name, code):
+        # Clean name for filename
+        filename = name.lower().replace(" ", "_")
+        if not filename.endswith(".py"):
+            filename += ".py"
+        
+        wf_path = self.workflow_dir / filename
+        try:
+            # Add a bit of metadata to the file
+            header = f"# Bite Workflow: {name}\n# Created via Python Lab\n\n"
+            wf_path.write_text(header + code)
+            
+            # Re-scan workflows so it appears in search immediately
+            self.workflows = self.scanner.scan_workflows(self.workflow_dir)
+            return {"success": True, "path": str(wf_path)}
+        except Exception as e:
+            return {"error": str(e)}
+
+    def run_python_scratch(self, code):
+        self.save_python_scratch(code)
+        # Create a temp file to run
+        temp_path = self.config_dir / "lab_scratch.py"
+        temp_path.write_text(code)
+        
+        # Use the same logic as workflow execution
+        python_exe = sys.executable
+        if not python_exe.lower().endswith("python.exe"):
+            for cmd in ["python3", "python", "py"]:
+                if shutil.which(cmd):
+                    python_exe = shutil.which(cmd)
+                    break
+        
+        import subprocess
+        try:
+            # We run it and capture output or just run it? 
+            # Subprocess Popen is better for non-blocking
+            subprocess.Popen(
+                [python_exe, str(temp_path)],
+                creationflags=(
+                    subprocess.CREATE_NEW_CONSOLE
+                    if self.platform == "Windows"
+                    else 0
+                ),
+            )
+            return {"success": True}
+        except Exception as e:
+            return {"error": str(e)}
 
     def toggle_pin(self, item_id: str):
         if not item_id:

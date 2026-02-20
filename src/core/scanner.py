@@ -157,10 +157,10 @@ class Scanner:
         if self.platform == "Windows":
             try:
                 import pythoncom
-
                 pythoncom.CoInitialize()
             except:
                 pass
+        
         while True:
             try:
                 curr = pyperclip.paste()
@@ -173,22 +173,18 @@ class Scanner:
                     self.bite.app.state.clipboard = self.bite.clipboard_history
             except:
                 pass
-            time.sleep(1)
+            time.sleep(1.5)
 
     def system_monitor(self):
-        if self.platform == "Windows":
-            try:
-                import pythoncom
-
-                pythoncom.CoInitialize()
-            except:
-                pass
+        # Cache psutil calls
         while True:
             try:
-                cpu = psutil.cpu_percent()
+                cpu = psutil.cpu_percent(interval=None)
                 mem = psutil.virtual_memory().percent
                 bat = psutil.sensors_battery()
                 battery = bat.percent if bat else None
+                
+                # Use a dict update to prevent overwriting other state keys if any
                 self.bite.app.state.sys_info = {
                     "cpu": cpu,
                     "mem": mem,
@@ -198,4 +194,4 @@ class Scanner:
                 }
             except:
                 pass
-            time.sleep(3)
+            time.sleep(4)

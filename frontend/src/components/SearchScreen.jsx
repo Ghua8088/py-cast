@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react'
-import { Search, Star, Copy, CornerDownLeft } from 'lucide-react'
+import { Search, Star, Copy, CornerDownLeft, Settings } from 'lucide-react'
 import { ItemIcon } from './Icons'
 import DetailsPanel from './DetailsPanel'
 
@@ -14,14 +14,19 @@ export default function SearchScreen({
     if (inputRef.current) inputRef.current.focus()
   }, [])
 
+  const lastInteraction = useRef('keyboard')
+
   useEffect(() => {
-    const activeItem = listRef.current?.querySelector('.ray-item.active');
-    if (activeItem) {
-      activeItem.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    if (lastInteraction.current === 'keyboard' && selectedIndex >= 0) {
+      const activeItem = listRef.current?.querySelector('.ray-item.active');
+      if (activeItem) {
+        activeItem.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      }
     }
   }, [selectedIndex]);
 
   const handleKeyDown = (e) => {
+    lastInteraction.current = 'keyboard';
     if (e.key === 'ArrowDown') {
       setSelectedIndex(prev => Math.min(prev + 1, results.length - 1));
       e.preventDefault();
@@ -68,8 +73,8 @@ export default function SearchScreen({
   const renderHeader = (index) => {
     const item = results[index]
     const prev = results[index - 1]
-    if (item.pinned) return index === 0 ? <div className="ray-cat-header">📌 Pinned Favorites</div> : null
-    if (index === 0 || (prev && prev.cat !== item.cat) || (prev && prev.pinned)) return <div className="ray-cat-header">{item.cat}</div>
+    if (item.pinned) return index === 0 ? <div className="ray-cat-header" data-cat="Pinned">📌 Pinned Favorites</div> : null
+    if (index === 0 || (prev && prev.cat !== item.cat) || (prev && prev.pinned)) return <div className="ray-cat-header" data-cat={item.cat}>{item.cat}</div>
     return null
   }
 
@@ -111,7 +116,10 @@ export default function SearchScreen({
                       e.stopPropagation();
                       executeItem(item);
                     }}
-                    onMouseEnter={() => setSelectedIndex(index)}
+                    onMouseEnter={() => {
+                      lastInteraction.current = 'mouse';
+                      setSelectedIndex(index);
+                    }}
                   >
                     <div className="ray-item-icon"><ItemIcon item={item} /></div>
                     <div className="ray-item-info">

@@ -43,6 +43,22 @@ def main():
         pyperclip.copy(text)
         return True
 
+    @app.expose
+    def get_python_scratch():
+        return bite.get_python_scratch()
+
+    @app.expose
+    def save_python_scratch(code):
+        return bite.save_python_scratch(code)
+
+    @app.expose
+    def run_python_scratch(code):
+        return bite.run_python_scratch(code)
+
+    @app.expose
+    def promote_lab_to_workflow(name, code):
+        return bite.promote_lab_to_workflow(name, code)
+
     # Shortcut API
     @app.expose
     def add_shortcut(k, n, u):

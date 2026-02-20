@@ -7,6 +7,7 @@ import './App.css'
 import SearchScreen from './components/SearchScreen'
 import SettingsView from './components/SettingsView'
 import ScratchpadScreen from './components/ScratchpadScreen'
+import PythonLabScreen from './components/PythonLabScreen'
 import ActionMenu from './components/ActionMenu'
 
 function App() {
@@ -80,7 +81,7 @@ function App() {
     if (view === 'settings' || view === 'scratchpad') {
       targetHeight = 550;
     } else if (isSearch && isZen) {
-      targetHeight = 65;
+      targetHeight = 60;
     }
 
     pytron.set_window_size(750, targetHeight);
@@ -174,16 +175,19 @@ function App() {
           if (query.trim() === '') {
             setSelectedIndex(-1);
           } else {
-            setSelectedIndex(prev => (prev === -1 || prev >= data.length) ? 0 : prev);
+            // Keep selection if it exists and is valid
+            setSelectedIndex(prev => {
+              if (prev >= 0 && prev < data.length) return prev;
+              return data.length > 0 ? 0 : -1;
+            });
           }
           setMouseActive(false)
-          interactionLock.current = true
         }
       } catch (e) {
         console.error("Search failed", e)
       }
     }
-    const timer = setTimeout(fetchResults, 40)
+    const timer = setTimeout(fetchResults, 10); // Ultra-fast response
     return () => {
       ignored = true;
       clearTimeout(timer)
@@ -192,14 +196,14 @@ function App() {
 
   const executeItem = (item) => {
     const now = Date.now();
-    if (now - lastExecTime.current < 600) return;
+    if (now - lastExecTime.current < 400) return; // Faster response
     if (execLock.current || !item || stateRef.current.isTransitioning) return;
 
     lastExecTime.current = now;
     execLock.current = true;
-    stateRef.current.isTransitioning = true;
 
-    const currentQuery = stateRef.current.query;
+    // Quick UI feedback
+    const currentQuery = query;
 
     if (item.action === 'settings') {
       setView('settings');
@@ -207,15 +211,22 @@ function App() {
     } else if (item.action === 'open_scratch') {
       setView('scratchpad');
       setQuery('');
+    } else if (item.action === 'open_lab') {
+      setView('python_lab');
+      setQuery('');
+    } else if (item.type === 'term_autofill') {
+      setQuery(item.new_query);
+      execLock.current = false; // Reset lock immediately for typing
+      return;
     } else {
       pytron.run_item(item, currentQuery);
-      setQuery('');
+      // Don't clear query for search commands that might keep window open
+      if (!item.keep_open) setQuery('');
     }
 
     setTimeout(() => {
       execLock.current = false;
-      stateRef.current.isTransitioning = false;
-    }, 600);
+    }, 400);
   };
 
   useEffect(() => {
@@ -256,6 +267,7 @@ function App() {
           setShowActionMenu={setShowActionMenu}
           togglePin={togglePin}
           hideFooter={hideFooter}
+          openSettings={() => setView('settings')}
         />
       )}
 
@@ -265,6 +277,12 @@ function App() {
         <ScratchpadScreen
           content={scratchContent}
           onSave={saveScratch}
+          onBack={() => setView('search')}
+        />
+      )}
+
+      {view === 'python_lab' && (
+        <PythonLabScreen
           onBack={() => setView('search')}
         />
       )}
@@ -284,17 +302,16 @@ function App() {
         <div className="ray-footer">
           <div className="footer-left">
             <span className="brand">Bite</span>
-            <span className="sep">|</span>
-            <span>v0.3.0 Native</span>
           </div>
           <div className="ray-footer-right">
             {results[selectedIndex]?.url && <div className="hint"><span className="kbd">↵</span> Open Browser</div>}
             {results[selectedIndex]?.path && <div className="hint"><span className="kbd">↵</span> Open File</div>}
             {results[selectedIndex]?.action === 'calc_res' && <div className="hint"><span className="kbd">↵</span> Copy Result</div>}
-            <div className="hint secondary"><span className="kbd">CTRL + K</span> Actions</div>
+            <div className="action-button-primary" onClick={() => setView('settings')}>
+              Settings
+            </div>
             <div className="action-button-primary" onClick={() => setShowActionMenu(true)}>
               Actions
-              <div className="kbd-small">⌘K</div>
             </div>
           </div>
         </div>

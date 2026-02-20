@@ -16,21 +16,10 @@ class Indexer:
         self._init_db()
 
         self.exclude_dirs = {
-            "Windows",
-            "Program Files",
-            "Program Files (x86)",
-            "AppData",
-            "node_modules",
-            ".git",
-            ".svn",
-            ".hg",
-            "System Volume Information",
-            "$Recycle.Bin",
-            "obj",
-            "bin",
-            "Temp",
-            "Cache",
-            "Logs",
+            "windows", "program files", "program files (x86)", "appdata",
+            "node_modules", ".git", ".svn", ".hg", "system volume information",
+            "$recycle.bin", "recycler", "trash", ".trash", "tmp", "cache", "logs", 
+            "private", "run", "dev", "proc", "sys", "boot", "snapshots"
         }
         self.exclude_exts = {
             ".pyc",
@@ -75,7 +64,6 @@ class Indexer:
                 print("Bite Indexer: Migrated database to include 'last_seen'")
         except: pass
 
-        # Metadata table
         conn.execute("""
             CREATE TABLE IF NOT EXISTS metadata (
                 key TEXT PRIMARY KEY,
@@ -83,6 +71,17 @@ class Indexer:
             )
         """)
         conn.commit()
+
+        # Purge data from excluded directories (e.g., Recycle Bin)
+        try:
+            trash_patterns = ["%$recycle.bin%", "%recycler%", "%trash%", "%appdata%", "%node_modules%"]
+            for pattern in trash_patterns:
+                # Need to use LOWER() for cross-platform case-insensitive purge
+                conn.execute("DELETE FROM files WHERE LOWER(path) LIKE ?", (pattern,))
+            conn.commit()
+            print(f"Bite Indexer: Purged {len(trash_patterns)} categories of junk from DB.")
+        except Exception as e:
+            print(f"Bite Indexer: Purge error: {e}")
 
         # FTS5 table for fast searching
         try:
@@ -223,8 +222,8 @@ class Indexer:
                 if self.stop_event.is_set():
                     break
                 
-                # Filter directories
-                dirs[:] = [d for d in dirs if d not in active_excludes and not d.startswith('.')]
+                # Filter directories (Case-Insensitive)
+                dirs[:] = [d for d in dirs if d.lower() not in active_excludes and not d.startswith('.')]
 
                 # Batch entries - only update FTS if modified
                 for d in dirs:
@@ -388,4 +387,16 @@ class Indexer:
             if r["path"] not in seen:
                 combined.append(dict(r))
 
-        return combined[:limit]
+        # Life Check: Filter out deleted files
+        final_results = []
+        for r in combined:
+            if os.path.exists(r["path"]):
+                final_results.append(r)
+            else:
+                 # Bonus: Clean up the DB if we catch a dead link
+                 try:
+                     conn.execute("DELETE FROM files WHERE path = ?", (r["path"],))
+                     conn.commit()
+                 except: pass
+        
+        return final_results[:limit]

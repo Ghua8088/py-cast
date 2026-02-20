@@ -6,9 +6,9 @@
         750,
         450
     ],
-    "version": "0.3.3",
+    "version": "0.3.4",
     "frameless": true,
-    "debug": false,
+    "debug": true,
     "default_context_menu": false,
     "url": "frontend/dist/index.html",
     "author": "Ghua8088",

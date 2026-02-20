@@ -55,20 +55,23 @@ class Searcher:
         # 7. Snippets
         snippet_matches = []
         for snip in self.bite.user_data.get("snippets", []):
+            name = snip.get("name") or ""
+            content = snip.get("content") or ""
             if (
                 not query
-                or query in snip["name"].lower()
-                or query in snip["content"].lower()
+                or query in name.lower()
+                or query in content.lower()
             ):
                 it = snip.copy()
                 it.update({"cat": "Snippets", "icon": "scissors", "action": "paste"})
-                it["score"] = 90 if query and query in snip["name"].lower() else 40
+                it["score"] = 90 if query and query in name.lower() else 40
                 snippet_matches.append(it)
 
         # 7. Workflows
         workflow_matches = []
         for wf in self.bite.workflows:
-            name_lower = wf["name"].lower()
+            name = wf.get("name") or "Unknown Workflow"
+            name_lower = name.lower()
             if not query:
                 workflow_matches.append(wf)
                 continue
@@ -123,11 +126,27 @@ class Searcher:
                     recents.append(it)
             others = recents + others
 
+        # Custom Prefixes
+        is_wf_search = query.lower().startswith("wf:") or query.lower().startswith("workflow:")
+        if is_wf_search:
+            # Strip prefix
+            prefix = "wf:" if query.lower().startswith("wf:") else "workflow:"
+            wf_query = query[len(prefix):].strip().lower()
+            
+            wf_matches = []
+            for wf in self.bite.workflows:
+                if not wf_query or wf_query in wf["name"].lower():
+                    it = wf.copy()
+                    it["score"] = 100 if wf_query and wf["name"].lower().startswith(wf_query) else 50
+                    wf_matches.append(it)
+            return sorted(wf_matches, key=lambda x: -x["score"])
+
         cat_map = {
             "System": -5,
+            "Pinned Favorites": -4,
             "Recents": -3,
-            "Productivity": -2.5,
-            "Workflows": -2,
+            "Workflows": -2.5,
+            "Productivity": -2,
             "Calc": -1,
             "Search": 0,
             "Web": 0.1,
@@ -157,8 +176,10 @@ class Searcher:
         for item in full_registry:
             it = item.copy()
             it["pinned"] = it["id"] in pinned_ids
-            name_lower = it["name"].lower()
-            kid = it["id"].lower()
+            name = it.get("name") or it.get("id") or "Unknown"
+            kind_id = it.get("id") or "unknown"
+            name_lower = name.lower()
+            kid = kind_id.lower()
 
             score = -1
             if not query:
@@ -238,29 +259,65 @@ class Searcher:
 
     def _match_math(self, query):
         try:
-            allowed = set("0123456789+-*/().% ")
+            # Unit Conversion Support (e.g., "10km to miles")
+            unit_match = re.match(r"(\d+\.?\d*)\s*([a-zA-Z]+)\s+(?:to|in)\s+([a-zA-Z]+)", query)
+            if unit_match:
+                val, from_unit, to_unit = unit_match.groups()
+                res = self._convert_units(float(val), from_unit, to_unit)
+                if res:
+                    return [{
+                        "id": "unit_res", "name": f"= {res}", "content": res,
+                        "desc": f"{val} {from_unit} in {to_unit}", "cat": "Calc",
+                        "icon": "zap", "action": "paste", "score": 100,
+                    }]
+
+            allowed = set("0123456789+-*/().%^ ")
+            query_clean = query.replace("^", "**")
             if (
                 query
                 and set(query).issubset(allowed)
                 and any(c.isdigit() for c in query)
             ):
                 if not query.strip().isdigit():
-                    res = str(eval(query, {"__builtins__": None}))
-                    return [
-                        {
-                            "id": "calc_res",
-                            "name": f"= {res}",
-                            "content": res,
-                            "desc": f"Result of '{query}'",
-                            "cat": "Calc",
-                            "icon": "calculator",
-                            "action": "paste",
-                            "score": 100,
-                        }
-                    ]
+                    # Basic math safety
+                    safe_dict = {"__builtins__": None, "abs": abs, "pow": pow, "round": round}
+                    res = eval(query_clean, safe_dict)
+                    if isinstance(res, (int, float)):
+                        formatted_res = f"{res:,}" if isinstance(res, int) else f"{res:g}"
+                        return [
+                            {
+                                "id": "calc_res",
+                                "name": f"= {formatted_res}",
+                                "content": str(res),
+                                "desc": f"Result of '{query}'",
+                                "cat": "Calc",
+                                "icon": "calculator",
+                                "action": "paste",
+                                "score": 100,
+                            }
+                        ]
         except:
             pass
         return []
+
+    def _convert_units(self, val, f, t):
+        f, t = f.lower(), t.lower()
+        units = {
+            "km": 1000, "m": 1, "cm": 0.01, "mm": 0.001,
+            "mi": 1609.34, "ft": 0.3048, "in": 0.0254, "yd": 0.9144,
+            "kg": 1000, "g": 1, "mg": 0.001, "lb": 453.592, "oz": 28.3495,
+        }
+        if f in units and t in units:
+            res = (val * units[f]) / units[t]
+            return f"{res:g} {t}"
+        
+        # Temp conversion
+        if f in ["c", "celsius"] and t in ["f", "fahrenheit"]:
+            return f"{(val * 9/5) + 32:g} °F"
+        if f in ["f", "fahrenheit"] and t in ["c", "celsius"]:
+            return f"{(val - 32) * 5/9:g} °C"
+        
+        return None
 
     def _search_files(self, query: str) -> List[Dict]:
         results = []

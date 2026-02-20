@@ -2,6 +2,7 @@ import os
 import sys
 import subprocess
 import ctypes
+import shutil
 import pyperclip
 import psutil
 from typing import Dict
@@ -44,8 +45,17 @@ class Executor:
                 self._run_shell(item, path if path else item.get("id"))
             elif itype == "workflow":
                 if path:
+                    # Resolve python interpreter
+                    python_exe = sys.executable
+                    if not python_exe.lower().endswith("python.exe"):
+                        # We are likely in a bundle, try to find system python
+                        for cmd in ["python3", "python", "py"]:
+                            if shutil.which(cmd):
+                                python_exe = shutil.which(cmd)
+                                break
+                    
                     subprocess.Popen(
-                        [sys.executable, path],
+                        [python_exe, path],
                         creationflags=(
                             subprocess.CREATE_NO_WINDOW
                             if self.platform == "Windows"
