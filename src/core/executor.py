@@ -122,6 +122,12 @@ class Executor:
                         proc.kill()
                 except:
                     pass
+        elif act == "kill_pid":
+            try:
+                psutil.Process(int(item["pid"])).kill()
+                self.bite.app.notify("Process Killed", f"Terminated {item['name']}", "success")
+            except Exception as e:
+                self.bite.app.notify("Kill Failed", str(e), "error")
         elif act == "empty_trash":
             self._empty_trash()
         elif act in ["vol_up", "vol_down", "mute"]:

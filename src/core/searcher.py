@@ -52,6 +52,15 @@ class Searcher:
         # 6. Terminal Commands
         term_matches = self._match_terminal(query)
 
+        # 6b. Process Manager
+        proc_matches = self._match_processes(query)
+
+        # 6c. Port Manager
+        port_matches = self._match_ports(query)
+
+        # 6d. Developer Tools (Hash, Base64, UUID)
+        dev_matches = self._match_dev_tools(query)
+
         # 7. Snippets
         snippet_matches = []
         for snip in self.bite.user_data.get("snippets", []):
@@ -87,6 +96,9 @@ class Searcher:
             + file_matches
             + clip_matches[:5]
             + term_matches
+            + proc_matches
+            + port_matches
+            + dev_matches
             + snippet_matches
             + workflow_matches
         )
@@ -236,6 +248,140 @@ class Searcher:
         
         return results
 
+    def _match_processes(self, query):
+        if not query.startswith("kill "):
+            return []
+            
+        term = query[5:].strip().lower()
+        if not term:
+            return [{
+                "id": "proc_hint", "name": "Kill Process", "desc": "Type process name to kill (e.g., 'kill node')",
+                "cat": "System", "icon": "zap", "score": 100
+            }]
+
+        import psutil
+        results = []
+        try:
+            for p in psutil.process_iter(['pid', 'name', 'memory_info']):
+                try:
+                    name = p.info['name']
+                    if name and term in name.lower():
+                        mem_mb = p.info['memory_info'].rss / (1024 * 1024)
+                        results.append({
+                            "id": f"kill_{p.info['pid']}",
+                            "name": f"Kill {name}",
+                            "desc": f"PID: {p.info['pid']} - RAM: {mem_mb:.1f} MB",
+                            "cat": "System",
+                            "icon": "zap",
+                            "action": "kill_pid",
+                            "pid": p.info['pid'],
+                            "score": 95 if name.lower() == term else 85
+                        })
+                except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                    pass
+        except:
+            pass
+            
+        return sorted(results, key=lambda x: -x["score"])[:15]
+
+    def _match_ports(self, query):
+        if not query.startswith("port "):
+            return []
+            
+        term = query[5:].strip()
+        if not term:
+            return [{
+                "id": "port_hint", "name": "Free Port", "desc": "Type port number to free (e.g., 'port 8080')",
+                "cat": "System", "icon": "zap", "score": 100
+            }]
+
+        if not term.isdigit():
+            return []
+
+        target_port = int(term)
+        import psutil
+        results = []
+        try:
+            for conn in psutil.net_connections(kind='inet'):
+                if conn.laddr and conn.laddr.port == target_port and conn.status == psutil.CONN_LISTEN:
+                    try:
+                        p = psutil.Process(conn.pid)
+                        name = p.name()
+                        results.append({
+                            "id": f"kill_port_{conn.pid}",
+                            "name": f"Free Port {target_port} ({name})",
+                            "desc": f"Kill {name} (PID: {conn.pid}) using port {target_port}",
+                            "cat": "System",
+                            "icon": "zap",
+                            "action": "kill_pid",
+                            "pid": conn.pid,
+                            "score": 100
+                        })
+                    except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                        pass
+        except:
+            pass
+            
+        if not results:
+             return [{
+                "id": "port_empty", "name": f"Port {target_port} is free", "desc": "No process is listening on this port",
+                "cat": "System", "icon": "check", "score": 100
+            }]
+
+        return results
+
+    def _match_dev_tools(self, query):
+        if not query: return []
+        results = []
+        q = query.lower()
+
+        # UUID Generator
+        if q.startswith("uuid"):
+            import uuid
+            new_uuid = str(uuid.uuid4())
+            results.append({
+                "id": "uuid_gen", "name": new_uuid, "desc": "Random UUID v4",
+                "content": new_uuid, "cat": "Custom", "icon": "cpu", "action": "paste", "score": 100
+            })
+
+        # Hash Generator
+        if q.startswith("hash ") and len(query) > 5:
+            text = query[5:]
+            import hashlib
+            h_md5 = hashlib.md5(text.encode()).hexdigest()
+            h_sha256 = hashlib.sha256(text.encode()).hexdigest()
+            
+            results.append({
+                "id": "hash_sha256", "name": h_sha256, "desc": f"SHA256 Hash of '{text}'",
+                "content": h_sha256, "cat": "Dev", "icon": "lock", "action": "paste", "score": 100
+            })
+            results.append({
+                "id": "hash_md5", "name": h_md5, "desc": f"MD5 Hash of '{text}'",
+                "content": h_md5, "cat": "Dev", "icon": "lock", "action": "paste", "score": 95
+            })
+
+        # Base64 Encode / Decode
+        if q.startswith("b64 ") and len(query) > 4:
+            text = query[4:]
+            import base64
+            # Try decode first, if it fails or is short, offer encode
+            try:
+                decoded = base64.b64decode(text).decode('utf-8')
+                results.append({
+                    "id": "b64_dec", "name": decoded, "desc": "Base64 Decoded",
+                    "content": decoded, "cat": "Dev", "icon": "terminal", "action": "paste", "score": 100
+                })
+            except:
+                pass
+            
+            encoded = base64.b64encode(text.encode('utf-8')).decode('utf-8')
+            results.append({
+                "id": "b64_enc", "name": encoded, "desc": "Base64 Encoded",
+                "content": encoded, "cat": "Dev", "icon": "terminal", "action": "paste", "score": 90
+            })
+
+        return results
+
     def _match_apps(self, query, pinned_ids, existing_names):
         matches = []
         for app in self.bite.installed_apps:
@@ -324,14 +470,41 @@ class Searcher:
         if len(query) < 2:
             return []
 
+        resolved_query = query
+        if query.startswith("@"):
+            aliases = self.bite.user_data.get("aliases", {})
+            parts = query.replace("/", "\\").split("\\", 1)
+            alias_name = parts[0][1:].lower()
+            if alias_name in aliases:
+                resolved_dir = aliases[alias_name]
+                if len(parts) > 1:
+                    resolved_query = os.path.join(resolved_dir, parts[1])
+                else:
+                    resolved_query = resolved_dir + os.sep
+            else:
+                # Provide hints for available aliases
+                matching = [k for k in aliases if k.startswith(alias_name)]
+                for m in matching:
+                    results.append({
+                        "id": f"alias_hint_{m}",
+                        "name": f"@{m}",
+                        "desc": f"Smart Alias for {aliases[m]}",
+                        "cat": "Aliases",
+                        "icon": "folder",
+                        "type": "term_autofill",
+                        "new_query": f"@{m}\\",
+                        "score": 100
+                    })
+                return results
+
         # Path Navigation
         if (
-            (len(query) >= 2 and query[1] == ":")
-            or query.startswith("/")
-            or query.startswith("\\")
+            (len(resolved_query) >= 2 and resolved_query[1] == ":")
+            or resolved_query.startswith("/")
+            or resolved_query.startswith("\\")
         ):
-            target_dir = query if os.path.isdir(query) else os.path.dirname(query)
-            partial = os.path.basename(query) if not os.path.isdir(query) else ""
+            target_dir = resolved_query if os.path.isdir(resolved_query) else os.path.dirname(resolved_query)
+            partial = os.path.basename(resolved_query) if not os.path.isdir(resolved_query) else ""
             if os.path.isdir(target_dir):
                 try:
                     with os.scandir(target_dir) as entries:

@@ -360,9 +360,8 @@ class Indexer:
         except sqlite3.OperationalError:
             res = []
 
-        # Layer 2: Fuzzy Sequence Match (The "pyc" -> "py-cast" logic)
-        # We turn "abc" into "%a%b%c%"
-        fuzzy_query = "%" + "%".join(list(query)) + "%"
+        # Layer 2: Fast Prefix & Substring Match (The 'starts-with' or 'contains' logic)
+        exact_like = f"%{query_safe}%"
 
         fuzzy_res = conn.execute(
             """
@@ -371,13 +370,12 @@ class Indexer:
             ORDER BY 
                 CASE 
                     WHEN name LIKE ? THEN 0 -- Starts with
-                    WHEN name LIKE ? THEN 1 -- Substring
-                    ELSE 2 
+                    ELSE 1 -- Substring
                 END, 
                 length(name) ASC
             LIMIT ?
         """,
-            (fuzzy_query, f"{query}%", f"%{query}%", limit),
+            (exact_like, f"{query_safe}%", limit),
         ).fetchall()
 
         # Combine and deduplicate

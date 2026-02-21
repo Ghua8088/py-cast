@@ -359,6 +359,11 @@ class Bite:
             "pins": [],
             "shortcuts": [],
             "snippets": [],
+            "aliases": {
+                "downloads": os.path.join(os.path.expanduser("~"), "Downloads"),
+                "desktop": os.path.join(os.path.expanduser("~"), "Desktop"),
+                "documents": os.path.join(os.path.expanduser("~"), "Documents")
+            },
             "scratchpad": "Welcome to your scratchpad! Type here to keep notes...",
             "settings": {
                 "theme_color": "#5e5ce6",

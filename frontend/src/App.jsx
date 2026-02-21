@@ -17,7 +17,6 @@ function App() {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
   const [selectedIndex, setSelectedIndex] = useState(-1)
-  const [sysInfo, setSysInfo] = useState({ cpu: 0, mem: 0 })
   // eslint-disable-next-line no-unused-vars
   const [mouseActive, setMouseActive] = useState(false)
   const [showActionMenu, setShowActionMenu] = useState(false)
@@ -121,23 +120,13 @@ function App() {
 
   useEffect(() => {
     const handleBlur = () => {
-      pytron.hide();
+      if (stateRef.current.view === 'search') pytron.hide();
     };
     window.addEventListener('blur', handleBlur);
     return () => window.removeEventListener('blur', handleBlur);
   }, []);
 
-  useEffect(() => {
-    pytron.waitForBackend().then(() => {
-      setSysInfo(pytron.state.sys_info || { cpu: 0, mem: 0 })
-    })
-
-    const handleState = (e) => {
-      if (e.detail.sys_info) setSysInfo(e.detail.sys_info)
-    }
-    window.addEventListener('pytron:state', handleState)
-    return () => window.removeEventListener('pytron:state', handleState)
-  }, [])
+  // (System stats moved to standalone component in SearchScreen)
 
   const [refreshSeq, setRefreshSeq] = useState(0);
   const onWfPrompt = () => {
@@ -187,7 +176,7 @@ function App() {
         console.error("Search failed", e)
       }
     }
-    const timer = setTimeout(fetchResults, 10); // Ultra-fast response
+    const timer = setTimeout(fetchResults, 200); // 200ms debounce to avoid overwhelming the backend
     return () => {
       ignored = true;
       clearTimeout(timer)
@@ -249,7 +238,13 @@ function App() {
 
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
-        pytron.hide()
+        if (stateRef.current.query) {
+          setQuery('');
+          e.stopPropagation();
+          e.preventDefault();
+        } else {
+          pytron.hide();
+        }
       }
     };
     window.addEventListener('keydown', handleKeyDown)
@@ -263,7 +258,7 @@ function App() {
           query={query} setQuery={setQuery}
           results={results} setResults={setResults}
           selectedIndex={selectedIndex} setSelectedIndex={setSelectedIndex}
-          executeItem={executeItem} sysInfo={sysInfo}
+          executeItem={executeItem}
           setShowActionMenu={setShowActionMenu}
           togglePin={togglePin}
           hideFooter={hideFooter}

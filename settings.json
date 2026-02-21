@@ -6,6 +6,11 @@
         750,
         450
     ],
+    "single_instance": true,
+    "resizable": false,
+    "transparent": false,
+    "always_on_top": true,
+    "start_hidden": true,
     "version": "0.3.4",
     "frameless": true,
     "debug": true,

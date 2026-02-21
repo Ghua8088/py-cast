@@ -12,6 +12,24 @@ export default function DetailsPanel({ item, onExecute }) {
     }
   };
 
+  const handleShare = async () => {
+    const textToShare = item.content || item.path || item.url || item.name;
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: item.name,
+          text: item.desc,
+          url: item.url || item.path || undefined
+        });
+      } else {
+        pytron.copy_to_clipboard(textToShare);
+        pytron.notify("Copied to Share", "Item content copied to clipboard!", "success");
+      }
+    } catch (err) {
+      // User cancelled share or failed
+    }
+  };
+
   return (
     <div className="ray-details-panel">
       <div className="details-header">
@@ -35,7 +53,7 @@ export default function DetailsPanel({ item, onExecute }) {
               <span>Copy Path</span>
             </div>
           )}
-          <div className="details-action-btn" onClick={() => pytron.notify("Coming Soon", "Shared functionality is in development", "info")}>
+          <div className="details-action-btn" onClick={handleShare}>
             <Share2 size={18} />
             <span>Share</span>
           </div>

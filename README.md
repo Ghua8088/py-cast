@@ -9,28 +9,9 @@
 ## [**Download Bite**](https://pytron-kit.github.io/bite)
 
 ##  Features
+Bite is absolutely packed with tools, settings, and native system integration to supercharge your workflow. Because there are so many built-in capabilities, we've moved the full breakdown into its own document!
 
-###  **Instant Launcher**
-- **Application Search**: Lightning fast indexing of your installed applications (`.exe`, `.lnk`, `.app`, `.desktop`).
-- **File Mastery**: Search, browse, and navigate your file system with Regex support (`re:pattern`) or direct path entry.
-- **Web Quick-Links**: Pre-configured shortcuts for Google (`g`), YouTube (`yt`), GitHub (`gh`), and more.
-
-###  **AI Power at Your Fingertips**
-Directly launch chats with your favorite AI models:
-- **ChatGPT**
-- **Claude**
-- **Gemini**
-- **Grok**
-- **Perplexity**
-
-###  **Productivity Tools**
-- **Clipboard History**: Never lose a copy-paste again. Search and retrieve past clipboard items.
-- **Smart Calculator**: Perform math operations directly in the search bar (e.g., `(12 * 5) / 2`).
-- **System Control**: Sleep, Lock, and obscure commands like "Kill All Python" just a keystroke away.
-
-###  **Customizable**
-- **Custom Shortcuts**: Add your own "Bangs" or search shortcuts in the settings.
-- **Pinning**: Pin your most used apps or commands to the top.
+📖 **[Read the Full Feature List here](features.md)**
 
 ## ️ Installation
 

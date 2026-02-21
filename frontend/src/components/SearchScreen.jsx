@@ -1,11 +1,39 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { Search, Star, Copy, CornerDownLeft, Settings } from 'lucide-react'
 import { ItemIcon } from './Icons'
 import DetailsPanel from './DetailsPanel'
+import pytron from 'pytron-client'
+
+function SysStats() {
+  const [sysInfo, setSysInfo] = useState({ cpu: 0, mem: 0 });
+  useEffect(() => {
+    pytron.waitForBackend().then(() => {
+      setSysInfo(pytron.state.sys_info || { cpu: 0, mem: 0 });
+    });
+    const handleState = (e) => {
+      if (e.detail.sys_info) setSysInfo(e.detail.sys_info);
+    };
+    window.addEventListener('pytron:state', handleState);
+    return () => window.removeEventListener('pytron:state', handleState);
+  }, []);
+
+  return (
+    <div className="ray-stats">
+      {sysInfo.battery !== undefined && sysInfo.battery !== null && (
+        <div className="stat-pill"><span className="stat-label">BAT</span><span className="stat-value">{sysInfo.battery}%</span></div>
+      )}
+      <div className="stat-pill"><span className="stat-label">CPU</span><span className="stat-value">{sysInfo.cpu}%</span></div>
+      <div className="stat-pill"><span className="stat-label">RAM</span><span className="stat-value">{sysInfo.mem}%</span></div>
+      {sysInfo.time && (
+        <div className="stat-pill"><span className="stat-label">TIME</span><span className="stat-value">{sysInfo.time}</span></div>
+      )}
+    </div>
+  );
+}
 
 export default function SearchScreen({
   query, setQuery, results, selectedIndex, setSelectedIndex,
-  executeItem, sysInfo, setShowActionMenu, togglePin, hideFooter
+  executeItem, setShowActionMenu, togglePin, hideFooter
 }) {
   const inputRef = useRef(null)
   const listRef = useRef(null)
@@ -59,11 +87,20 @@ export default function SearchScreen({
         setShowActionMenu(true);
       }
       e.preventDefault();
+    } else if (e.key === 'c' && (e.ctrlKey || e.metaKey)) {
+      if (selectedIndex >= 0 && results[selectedIndex]) {
+        const item = results[selectedIndex];
+        if (item.path || item.content) {
+          pytron.copy_to_clipboard(item.content || item.path);
+          pytron.notify("Copied", "Item copied to clipboard", "success");
+        }
+      }
+      e.preventDefault();
     } else if (results.length === 0 && query.trim() !== '') {
-      if (e.key.toLowerCase() === 'g') {
+      if (e.key.toLowerCase() === 'g' && (e.ctrlKey || e.metaKey)) {
         executeItem({ id: 'g_search', type: 'web', url: `https://google.com/search?q=${encodeURIComponent(query)}` });
         e.preventDefault();
-      } else if (e.key.toLowerCase() === 'h') {
+      } else if (e.key.toLowerCase() === 'h' && (e.ctrlKey || e.metaKey)) {
         executeItem({ id: 'gh_search', type: 'web', url: `https://github.com/search?q=${encodeURIComponent(query)}` });
         e.preventDefault();
       }
@@ -90,16 +127,7 @@ export default function SearchScreen({
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
         />
-        <div className="ray-stats">
-          {sysInfo.battery !== undefined && sysInfo.battery !== null && (
-            <div className="stat-pill"><span className="stat-label">BAT</span><span className="stat-value">{sysInfo.battery}%</span></div>
-          )}
-          <div className="stat-pill"><span className="stat-label">CPU</span><span className="stat-value">{sysInfo.cpu}%</span></div>
-          <div className="stat-pill"><span className="stat-label">RAM</span><span className="stat-value">{sysInfo.mem}%</span></div>
-          {sysInfo.time && (
-            <div className="stat-pill"><span className="stat-label">TIME</span><span className="stat-value">{sysInfo.time}</span></div>
-          )}
-        </div>
+        <SysStats />
       </div>
 
       {(!hideFooter || query.trim().length > 0) && (
@@ -157,10 +185,10 @@ export default function SearchScreen({
                   <p className="dim">No matches for "{query}"</p>
                   <div className="fallback-suggestions">
                     <div className="fallback-item" onClick={() => executeItem({ id: 'g_search', type: 'web', url: `https://google.com/search?q=${encodeURIComponent(query)}` })}>
-                      <span className="kbd">G</span> Search Google
+                      <span className="kbd">Ctrl+G</span> Search Google
                     </div>
                     <div className="fallback-item" onClick={() => executeItem({ id: 'gh_search', type: 'web', url: `https://github.com/search?q=${encodeURIComponent(query)}` })}>
-                      <span className="kbd">H</span> Search GitHub
+                      <span className="kbd">Ctrl+H</span> Search GitHub
                     </div>
                   </div>
                 </div>
