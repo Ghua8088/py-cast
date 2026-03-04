@@ -1,5 +1,5 @@
 import { ItemIcon } from './Icons'
-import { Zap, Clipboard, Share2 } from 'lucide-react'
+import { Zap, Clipboard, Share2, ExternalLink, FileText, Terminal, Info, Globe, Shield, Activity, Database } from 'lucide-react'
 import pytron from 'pytron-client'
 
 export default function DetailsPanel({ item, onExecute }) {
@@ -8,7 +8,7 @@ export default function DetailsPanel({ item, onExecute }) {
   const copyPath = () => {
     if (item.path) {
       pytron.copy_to_clipboard(item.path);
-      pytron.notify("Copied", "Path saved to clipboard", "success");
+      pytron.send_notification("Copied", "Path saved to clipboard");
     }
   };
 
@@ -23,7 +23,7 @@ export default function DetailsPanel({ item, onExecute }) {
         });
       } else {
         pytron.copy_to_clipboard(textToShare);
-        pytron.notify("Copied to Share", "Item content copied to clipboard!", "success");
+        pytron.send_notification("Copied to Share", "Item content copied to clipboard!");
       }
     } catch (err) {
       // User cancelled share or failed
@@ -61,32 +61,59 @@ export default function DetailsPanel({ item, onExecute }) {
       </div>
 
       <div className="details-section">
-        <div className="details-section-title">Metadata</div>
+        <div className="details-section-title">Context & Info</div>
         <div className="meta-list">
           {item.path && (
-            <div className="meta-row" onClick={() => pytron.notify("Hint", "Hover to reveal full path", "info")}>
-              <span className="meta-label">Location</span>
-              <span className="meta-value" title={item.path}>{item.path}</span>
+            <div className="meta-row" onClick={copyPath}>
+              <div className="meta-item-header">
+                <Terminal size={14} className="meta-icon" />
+                <span className="meta-label">Path</span>
+              </div>
+              <span className="meta-value truncate-path" title={item.path}>{item.path}</span>
             </div>
           )}
-          {item.cat && (
-            <div className="meta-row">
-              <span className="meta-label">Source</span>
-              <span className="meta-value">{item.cat}</span>
+
+          {item.url && (
+            <div className="meta-row" onClick={() => onExecute(item)}>
+              <div className="meta-item-header">
+                <Globe size={14} className="meta-icon" />
+                <span className="meta-label">Target URL</span>
+              </div>
+              <span className="meta-value truncate-url" title={item.url}>{item.url}</span>
             </div>
           )}
-          {item.type && (
-            <div className="meta-row">
-              <span className="meta-label">Identity</span>
-              <span className="meta-value">{item.type}</span>
-            </div>
-          )}
+
+          <div className="meta-grid">
+            {item.cat && (
+              <div className="meta-grid-item">
+                <Database size={12} />
+                <span>{item.cat}</span>
+              </div>
+            )}
+            {item.type && (
+              <div className="meta-grid-item">
+                <Info size={12} />
+                <span>{item.type.toUpperCase()}</span>
+              </div>
+            )}
+          </div>
+
           {item.content && (
-            <div className="meta-row" style={{ marginTop: '8px' }}>
-              <span className="meta-label">Snippets Content</span>
+            <div className="meta-row content-preview-box">
+              <div className="meta-item-header">
+                <FileText size={14} className="meta-icon" />
+                <span className="meta-label">Snippet Preview</span>
+              </div>
               <div className="details-content-preview">
                 {item.content}
               </div>
+            </div>
+          )}
+
+          {!item.content && !item.path && !item.url && (
+            <div className="details-empty-preview">
+              <Shield size={24} opacity={0.2} />
+              <p>No additional metadata available for this item.</p>
             </div>
           )}
         </div>

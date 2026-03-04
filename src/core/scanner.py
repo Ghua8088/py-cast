@@ -8,6 +8,13 @@ from pathlib import Path
 from typing import List, Dict
 from src.utils.icon_handler import get_icon_url
 
+try:
+    if platform.system() == "Windows":
+        import win32gui
+        import win32process
+except ImportError:
+    pass
+
 
 class Scanner:
     def __init__(self, bite_instance):
@@ -164,16 +171,35 @@ class Scanner:
         while True:
             try:
                 curr = pyperclip.paste()
-                if curr and curr != self.bite._last_clipboard:
-                    self.bite._last_clipboard = curr
-                    self.bite.clipboard_history.insert(
-                        0, {"content": curr, "time": time.strftime("%H:%M:%S")}
-                    )
-                    self.bite.clipboard_history = self.bite.clipboard_history[:20]
-                    self.bite.app.state.clipboard = self.bite.clipboard_history
+                if curr:
+                    self.bite.record_clipboard(curr)
             except:
                 pass
             time.sleep(1.5)
+
+    def get_active_window(self) -> Dict:
+        """Universal active window tracker for context injection."""
+        try:
+            if self.platform == "Windows":
+                hwnd = win32gui.GetForegroundWindow()
+                title = win32gui.GetWindowText(hwnd)
+                if not title: return None
+                
+                _, pid = win32process.GetWindowThreadProcessId(hwnd)
+                proc = psutil.Process(pid)
+                return {
+                    "title": title,
+                    "process": proc.name().lower(),
+                    "pid": pid
+                }
+            elif self.platform == "Darwin":
+                # Fallback for macOS context via AppleScript or similar
+                return None
+            elif self.platform == "Linux":
+                return None
+        except:
+            return None
+        return None
 
     def system_monitor(self):
         # Cache psutil calls
@@ -184,12 +210,17 @@ class Scanner:
                 bat = psutil.sensors_battery()
                 battery = bat.percent if bat else None
                 
+                # Context Awareness: What is the user doing right now?
+                active_context = self.get_active_window()
+                self.bite.active_context = active_context
+
                 # Use a dict update to prevent overwriting other state keys if any
                 self.bite.app.state.sys_info = {
                     "cpu": cpu,
                     "mem": mem,
                     "battery": battery,
                     "time": time.strftime("%H:%M"),
+                    "active_win": active_context.get("title") if active_context else None,
                     "indexing": getattr(self.bite.indexer, "is_indexing", False),
                 }
             except:

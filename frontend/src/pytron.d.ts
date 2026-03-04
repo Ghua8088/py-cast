@@ -70,6 +70,7 @@ declare module 'pytron-client' {
      * This enables simple cross-window communication.
      */
     app_publish(event_name: string, data: any): Promise<any>;
+    app_ping(): Promise<any>;
     /**
      * Checks for application updates.
      * Returns update info if available, else None.

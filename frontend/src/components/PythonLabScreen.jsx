@@ -15,17 +15,17 @@ export default function PythonLabScreen({ onBack }) {
         const res = await pytron.run_python_scratch(code);
         if (res.success) {
             setStatus('success');
-            pytron.notify("Python Lab", "Script executed successfully", "success");
+            pytron.send_notification("Python Lab", "Script executed successfully");
         } else {
             setStatus('error');
-            pytron.notify("Error", res.error || "Execution failed", "error");
+            pytron.send_notification("Error", res.error || "Execution failed");
         }
         setTimeout(() => setStatus('idle'), 2000);
     };
 
     const handleSave = () => {
         pytron.save_python_scratch(code);
-        pytron.notify("Saved", "Python scratchpad updated", "success");
+        pytron.send_notification("Saved", "Python scratchpad updated");
     };
 
     const handlePromote = async () => {
@@ -34,9 +34,9 @@ export default function PythonLabScreen({ onBack }) {
 
         const res = await pytron.promote_lab_to_workflow(name, code);
         if (res.success) {
-            pytron.notify("Success", `Workflow '${name}' created!`, "success");
+            pytron.send_notification("Success", `Workflow '${name}' created!`);
         } else {
-            pytron.notify("Error", res.error || "Failed to create workflow", "error");
+            pytron.send_notification("Error", res.error || "Failed to create workflow");
         }
     };
 

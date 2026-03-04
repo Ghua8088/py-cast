@@ -132,19 +132,23 @@ def get_icon_url(app_instance, path, force=False):
     if not force:
         return None
 
-    # 1. Windows Native Extraction
-    if platform.system() == "Windows" and path_lower.endswith((".lnk", ".exe")):
-        try:
-            png_bytes = extract_icon_to_png_bytes(path_str)
-            if png_bytes:
-                b64 = base64.b64encode(png_bytes).decode("utf-8")
-                url = f"data:image/png;base64,{b64}"
-                app_instance.resolved_icons[key] = url
-                return url
-        except:
-            pass
+    # Windows Native Extraction for ALL files (EXEs, LNKs, Folders, Docs)
+    if platform.system() == "Windows":
+        # Skip native extraction for common code/doc files to use react-file-icon instead
+        # This prevents the "blank white paper" OS icon from overriding our nice SVG icons.
+        skip_native = path_lower.endswith(('.py', '.js', '.ts', '.html', '.css', '.json', '.c', '.cpp', '.java', '.md', '.txt', '.pdf', '.docx', '.xlsx', '.pptx'))
+        if not skip_native:
+            try:
+                png_bytes = extract_icon_to_png_bytes(path_str)
+                if png_bytes:
+                    b64 = base64.b64encode(png_bytes).decode("utf-8")
+                    url = f"data:image/png;base64,{b64}"
+                    app_instance.resolved_icons[key] = url
+                    return url
+            except:
+                pass
 
-    # 2. macOS/Linux Generic Image Handling
+    # 2. Generic Image Handling (Serve directly)
     if path_lower.endswith(
         (".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp", ".ico", ".icns")
     ):

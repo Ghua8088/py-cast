@@ -59,6 +59,12 @@ def main():
     def promote_lab_to_workflow(name, code):
         return bite.promote_lab_to_workflow(name, code)
 
+    @app.expose
+    def send_notification(title, message):
+        # Renamed from 'notify' to avoid conflicts with reserved Pytron methods
+        app.system_notification(title=title, message=message)
+        return True
+
     # Shortcut API
     @app.expose
     def add_shortcut(k, n, u):
@@ -84,6 +90,23 @@ def main():
     @app.expose
     def get_user_snippets():
         return bite.get_user_snippets()
+
+    # Path Alias API
+    @app.expose
+    def add_path_alias(k, p):
+        return bite.add_path_alias(k, p)
+
+    @app.expose
+    def remove_path_alias(k):
+        return bite.remove_path_alias(k)
+
+    @app.expose
+    def select_folder_for_alias():
+        return bite.select_folder_for_alias()
+
+    @app.expose
+    def get_path_aliases():
+        return bite.user_data.get("path_aliases", {})
 
     # --- Updater Integration ---
     from pytron.updater import Updater
@@ -144,6 +167,22 @@ def main():
     @app.expose
     def update_settings(s):
         return bite.update_settings(s)
+
+    @app.expose
+    def get_adaptive_theme():
+        return bite.get_adaptive_theme()
+
+    @app.expose
+    def hide():
+        if app.windows:
+            app.windows[0].hide()
+        return True
+
+    @app.expose
+    def show():
+        if app.windows:
+            app.windows[0].show()
+        return True
 
     app.run()
 

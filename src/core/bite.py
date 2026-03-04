@@ -15,16 +15,18 @@ from src.core.scanner import Scanner
 from src.core.searcher import Searcher
 from src.core.executor import Executor
 from src.core.indexer import Indexer
+from src.core.plugins import PluginManager
+from src.core.brain import Brain
+from src.utils.theme_engine import get_wallpaper_path, get_adaptive_color
 
 
 class Bite:
     def __init__(self, app: App):
         self.app = app
         self.platform = platform.system()
-        self.clipboard_history = []
-        self._last_clipboard = ""
         self.recent_ids = []
         self.resolved_icons = {}
+        self.active_context = None
 
         # Paths
         config_home = (
@@ -38,14 +40,21 @@ class Bite:
         self.workflow_dir.mkdir(parents=True, exist_ok=True)
         self.config_path = self.config_dir / "config.json"
 
+        # Initialize data and clipboard
+        self.user_data = self._load_config()
+        self.clipboard_history = self.user_data.get("clipboard_history", [])
+        self._last_clipboard = self.clipboard_history[0]["content"] if self.clipboard_history else ""
+
         # Modules
         self.scanner = Scanner(self)
         self.searcher = Searcher(self)
         self.executor = Executor(self)
         self.indexer = Indexer(self)
+        self.brain = Brain(self)
+        self.plugins = PluginManager(self)
+        self.plugins.load_plugins()
 
         # Initial Data
-        self.user_data = self._load_config()
         self.base_registry = self._get_base_registry()
         self.installed_apps = self.scanner.scan_applications()
         self.workflows = self.scanner.scan_workflows(self.workflow_dir)
@@ -136,6 +145,15 @@ class Bite:
                 "desc": "Clear system bin",
                 "cat": "System",
                 "icon": "trash",
+            },
+            {
+                "id": "refresh_theme",
+                "name": "Refresh Adaptive Theme",
+                "desc": "Sync accent colors with your current wallpaper",
+                "action": "refresh_theme",
+                "cat": "System",
+                "icon": "palette",
+                "keep_open": True,
             },
             {
                 "id": "vol_up",
@@ -364,6 +382,8 @@ class Bite:
                 "desktop": os.path.join(os.path.expanduser("~"), "Desktop"),
                 "documents": os.path.join(os.path.expanduser("~"), "Documents")
             },
+            "mnemonics": {},
+            "clipboard_history": [],
             "scratchpad": "Welcome to your scratchpad! Type here to keep notes...",
             "settings": {
                 "theme_color": "#5e5ce6",
@@ -403,6 +423,52 @@ class Bite:
 
     def get_settings(self):
         return self.user_data.get("settings", {})
+
+    def record_selection(self, query: str, item_id: str):
+        if not query or not item_id:
+            return
+        
+        # Clean query: lowercase and stripped
+        q = query.lower().strip()
+        if len(q) < 1:
+            return
+            
+        mnemonics = self.user_data.get("mnemonics", {})
+        # Store as { query: { item_id: count } }
+        if q not in mnemonics:
+            mnemonics[q] = {}
+        
+        if item_id not in mnemonics[q]:
+            mnemonics[q][item_id] = 0
+            
+        mnemonics[q][item_id] += 1
+        
+        # Clean up: only keep top 3 per query to save space
+        if len(mnemonics[q]) > 3:
+            sorted_items = sorted(mnemonics[q].items(), key=lambda x: x[1], reverse=True)
+            mnemonics[q] = dict(sorted_items[:3])
+            
+        self.user_data["mnemonics"] = mnemonics
+        self._save_config()
+        
+        # Neural Learning: Link this action to the current context
+        self.brain.record_event(item_id)
+
+    def record_clipboard(self, content: str):
+        if not content or content == self._last_clipboard:
+            return
+        
+        self._last_clipboard = content
+        entry = {"content": content, "time": time.strftime("%H:%M:%S"), "date": time.strftime("%Y-%m-%d")}
+        
+        # Avoid duplicates in history
+        self.clipboard_history = [c for c in self.clipboard_history if c["content"] != content]
+        self.clipboard_history.insert(0, entry)
+        self.clipboard_history = self.clipboard_history[:50] # Keep more history
+        
+        self.user_data["clipboard_history"] = self.clipboard_history
+        self.app.state.clipboard = self.clipboard_history
+        self._save_config()
 
     def _save_config(self):
         self.config_path.write_text(json.dumps(self.user_data))
@@ -526,6 +592,29 @@ class Bite:
         except Exception as e:
             return {"error": str(e)}
 
+    def select_folder_for_alias(self):
+        """Opens a native folder dialog and returns the selected path."""
+        # Temporarily disable always_on_top so the dialog isn't hidden behind the main window
+        # We can also just hide the window to be safe and clean
+        if self.app.windows:
+            self.app.windows[0].hide()
+            
+        folder_path = self.app.dialog_open_folder(title="Select Folder for Alias")
+        
+        if self.app.windows:
+            self.app.windows[0].show()
+            
+        if not folder_path:
+            return {"error": "No folder selected"}
+        
+        # Handle list return if pytron returns it that way
+        if isinstance(folder_path, list):
+            if not folder_path:
+                return {"error": "No folder selected"}
+            folder_path = folder_path[0]
+            
+        return {"path": str(folder_path)}
+
     def get_results(self, query):
         return self.searcher.get_results(query)
 
@@ -544,26 +633,83 @@ class Bite:
         except:
             return "Unknown"
 
+    def resolve_aliases(self, text: str) -> str:
+        """Universal alias resolver for @path shortcuts."""
+        if not text or "@" not in text:
+            return text
+            
+        # Combine both alias stores
+        all_aliases = self.user_data.get("aliases", {}).copy()
+        path_aliases = self.user_data.get("path_aliases", {})
+        all_aliases.update(path_aliases)
+        
+        # Sort by key length descending to prevent partial matches of shorter aliases
+        sorted_keys = sorted(all_aliases.keys(), key=len, reverse=True)
+        
+        expanded = text
+        for k in sorted_keys:
+            alias = k if k.startswith("@") else f"@{k}"
+            target = all_aliases[k].rstrip("\\/")
+            
+            # Replace @alias/ or @alias\ with target\
+            if f"{alias}/" in expanded:
+                expanded = expanded.replace(f"{alias}/", f"{target}\\")
+            elif f"{alias}\\" in expanded:
+                expanded = expanded.replace(f"{alias}\\", f"{target}\\")
+            elif expanded.endswith(alias):
+                # Ensure it's a whole word or start of string
+                idx = expanded.rfind(alias)
+                if idx == 0 or expanded[idx-1] == " ":
+                    expanded = expanded[:idx] + target
+            elif f" {alias} " in expanded:
+                expanded = expanded.replace(f" {alias} ", f" {target} ")
+            elif expanded.startswith(f"{alias} "):
+                expanded = expanded.replace(f"{alias} ", f"{target} ", 1)
+            elif expanded == alias:
+                expanded = target
+                
+        return expanded
+
+    def get_adaptive_theme(self):
+        path = get_wallpaper_path()
+        color = get_adaptive_color(path)
+        return {"accent": color or "#3b82f6"} # Default to blue if fails
+
     # Settings Helpers
     def add_shortcut(self, k, n, u):
         self.user_data["shortcuts"] = [s for s in self.user_data["shortcuts"] if s["id"] != k]
         
-        # Simple heuristic for web URLs
-        is_web = u.startswith("http") or u.startswith("www.") or ("." in u and " " not in u and "/" not in u) or ("." in u.split("/")[0] if "/" in u else False)
-        
-        if is_web:
-            if not u.startswith("http"): u = "https://" + u
+        # Check if u is multi-command (contains NEWLINES or ;)
+        commands = []
+        if "\n" in u:
+            commands = [cmd.strip() for cmd in u.split("\n") if cmd.strip()]
+        elif ";" in u and not (u.startswith("http") and "query=" in u): # Basic guard for URLs
+            commands = [cmd.strip() for cmd in u.split(";") if cmd.strip()]
+            
+        if len(commands) > 1:
             self.user_data["shortcuts"].append({
-                "id": k, "name": n, "type": "search", 
-                "url": u, "cat": "Custom", "icon": "globe"
+                "id": k, "name": n, "type": "multi", 
+                "commands": commands, "cat": "Custom", "icon": "layers",
+                "desc": f"Runs {len(commands)} commands"
             })
         else:
-            # Treat as shell command or file path
-            self.user_data["shortcuts"].append({
-                "id": k, "name": n, "type": "shell", 
-                "path": u, "cat": "Custom", "icon": "terminal",
-                "shell": True
-            })
+            # Simple heuristic for web URLs
+            cmd = commands[0] if commands else u
+            is_web = cmd.startswith("http") or cmd.startswith("www.") or ("." in cmd and " " not in cmd and "/" not in cmd) or ("." in cmd.split("/")[0] if "/" in cmd else False)
+            
+            if is_web:
+                if not cmd.startswith("http"): cmd = "https://" + cmd
+                self.user_data["shortcuts"].append({
+                    "id": k, "name": n, "type": "search", 
+                    "url": cmd, "cat": "Custom", "icon": "globe"
+                })
+            else:
+                # Treat as shell command or file path
+                self.user_data["shortcuts"].append({
+                    "id": k, "name": n, "type": "shell", 
+                    "path": cmd, "cat": "Custom", "icon": "terminal",
+                    "shell": True
+                })
             
         self._save_config()
         return self.user_data["shortcuts"]
@@ -599,8 +745,22 @@ class Bite:
     def get_user_snippets(self):
         return self.user_data.get("snippets", [])
 
-    def _create_file_result(self, entry, desc):
-        icon_url = get_icon_url(self, entry.path)
+    def add_path_alias(self, k, p):
+        if "path_aliases" not in self.user_data: self.user_data["path_aliases"] = {}
+        self.user_data["path_aliases"][k] = p
+        self._save_config()
+        return self.user_data["path_aliases"]
+
+    def remove_path_alias(self, k):
+        if "path_aliases" in self.user_data:
+            if k in self.user_data["path_aliases"]:
+                del self.user_data["path_aliases"][k]
+                self._save_config()
+        return self.user_data.get("path_aliases", {})
+
+    def _create_file_result(self, entry, desc, tags=None):
+        # ALWAYS force a real icon for file/search results to ensure OS logos show up
+        icon_url = get_icon_url(self, entry.path, force=True)
         display_desc = f"{desc} {entry.path}" if desc else entry.path
         return {
             "id": f"file_{entry.path}",
@@ -608,6 +768,7 @@ class Bite:
             "path": entry.path,
             "desc": display_desc,
             "cat": "Files",
+            "tags": tags,
             "icon": icon_url or ("folder" if entry.is_dir() else "file"),
             "resolve_path": entry.path if not icon_url and not entry.is_dir() else None,
             "type": "file",

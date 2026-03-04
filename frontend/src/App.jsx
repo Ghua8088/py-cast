@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import pytron from 'pytron-client'
-import { Star, Search, Plus } from 'lucide-react'
+import { Star, Search, Plus, Timer, Bell } from 'lucide-react'
 import './App.css'
 
 // Modular Components
@@ -13,7 +13,8 @@ import ActionMenu from './components/ActionMenu'
 function App() {
   const [view, setView] = useState('search') // 'search' | 'settings' | 'scratchpad'
   const [themeColor, setThemeColor] = useState('#5e5ce6')
-  const [hideFooter, setHideFooter] = useState(false)
+  const [zenMode, setZenMode] = useState(false)
+  const [hideFooter, setHideFooter] = useState(false) // Deprecated, matching zenMode now for compatibility
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
   const [selectedIndex, setSelectedIndex] = useState(-1)
@@ -21,6 +22,9 @@ function App() {
   const [mouseActive, setMouseActive] = useState(false)
   const [showActionMenu, setShowActionMenu] = useState(false)
   const [scratchContent, setScratchContent] = useState('')
+  const [activeTimer, setActiveTimer] = useState(null) // { remaining: seconds, total: seconds }
+  const [isResizing, setIsResizing] = useState(false)
+  const timerRef = useRef(null)
 
   // Single source of truth for the event listeners to prevent stale closures
   // We update this SYNCHRONOUSLY during render to avoid useEffect race conditions
@@ -41,50 +45,128 @@ function App() {
   const resolving = useRef(new Set())
   const lastPos = useRef({ x: 0, y: 0 })
 
-  useEffect(() => {
-    pytron.get_settings().then(s => {
-      if (s?.theme_color) setThemeColor(s.theme_color)
-      setHideFooter(!!s?.hide_footer)
-    })
+  // Persistent Theme Sync
+  // Persistent Theme & Settings Sync
+  const syncSettings = async () => {
+    try {
+      const s = await pytron.get_settings();
+      if (!s) return;
 
+      // Apply Theme
+      if (s.theme_color) {
+        let color = s.theme_color;
+        if (color === 'adaptive') {
+          try {
+            const t = await pytron.get_adaptive_theme();
+            if (t?.accent) color = t.accent;
+          } catch (e) {
+            console.warn("Sync: Adaptive theme failed", e);
+            color = "#3b82f6";
+          }
+        }
+
+        if (color && color !== 'adaptive') {
+          setThemeColor(color);
+          document.documentElement.style.setProperty('--accent', color);
+          document.documentElement.style.setProperty('--accent-glow', color + '59');
+        }
+      }
+
+      // Apply Zen Mode & Footer visibility
+      if (typeof s.hide_footer !== 'undefined') {
+        setZenMode(!!s.hide_footer);
+        setHideFooter(!!s.hide_footer);
+      }
+    } catch (err) {
+      console.error("Sync failed", err);
+    }
+  };
+
+  useEffect(() => {
+    syncSettings();
     if (view === 'scratchpad') {
       pytron.get_scratchpad().then(setScratchContent)
     }
   }, [view]);
 
   useEffect(() => {
-    const handleSettingsUpdate = () => {
-      pytron.get_settings().then(s => {
-        if (s?.theme_color) setThemeColor(s.theme_color)
-        setHideFooter(!!s?.hide_footer)
-      })
-    }
+    const handleSettingsUpdate = () => syncSettings();
     window.addEventListener('settings_updated', handleSettingsUpdate)
+
+    pytron.on('pytron:theme_updated', (t) => {
+      if (t?.accent) {
+        setThemeColor(t.accent);
+        document.documentElement.style.setProperty('--accent', t.accent);
+        document.documentElement.style.setProperty('--accent-glow', t.accent + '59');
+      }
+    });
 
     pytron.on('show_view', (v) => {
       setView(v)
+      syncSettings();
       pytron.show()
     })
 
     return () => {
       window.removeEventListener('settings_updated', handleSettingsUpdate)
+      clearInterval(timerRef.current)
     }
   }, [])
 
   useEffect(() => {
+    if (activeTimer) {
+      timerRef.current = setInterval(() => {
+        setActiveTimer(prev => {
+          if (!prev) return null;
+          if (prev.remaining <= 1) {
+            clearInterval(timerRef.current);
+            pytron.send_notification("Timer Finished", "Your countdown is complete!");
+            return null;
+          }
+          return { ...prev, remaining: prev.remaining - 1 };
+        });
+      }, 1000);
+    }
+    return () => clearInterval(timerRef.current);
+  }, [activeTimer === null]); // Re-start interval only when status changes 
+
+  const lastHeight = useRef(450);
+  useEffect(() => {
     const isSearch = view === 'search';
-    const isZen = hideFooter && query.trim().length === 0;
-    const isEmpty = query.trim().length === 0;
+    const isZenState = zenMode && query.trim().length === 0;
 
     let targetHeight = 450;
-    if (view === 'settings' || view === 'scratchpad') {
+    if (view === 'settings' || view === 'scratchpad' || view === 'python_lab') {
       targetHeight = 550;
-    } else if (isSearch && isZen) {
-      targetHeight = 60;
+    } else if (isSearch && isZenState) {
+      targetHeight = 62;
     }
 
-    pytron.set_window_size(750, targetHeight);
-  }, [view, query, hideFooter, results.length]);
+    // ONLY call IPC if the height actually changed to prevent jitter
+    if (targetHeight !== lastHeight.current) {
+      const isExpanding = targetHeight > lastHeight.current;
+      lastHeight.current = targetHeight;
+
+      if (isExpanding) setIsResizing(true);
+
+      const timer = setTimeout(() => {
+        pytron.set_window_size(750, targetHeight);
+        setTimeout(() => setIsResizing(false), 50);
+      }, 15);
+      return () => clearTimeout(timer);
+    }
+  }, [view, query.trim().length === 0, zenMode]);
+
+  // SYNCHRONOUS RENDER-TIME CHECK (The Anti-Flicker Guard)
+  const isSearch = view === 'search';
+  const isZenState = zenMode && query.trim().length === 0;
+  let targetHeightRender = 450;
+  if (view === 'settings' || view === 'scratchpad' || view === 'python_lab') {
+    targetHeightRender = 550;
+  } else if (isSearch && isZenState) {
+    targetHeightRender = 62;
+  }
+  const effectivelyResizing = isResizing || (targetHeightRender !== lastHeight.current);
 
   const saveScratch = (val) => {
     setScratchContent(val);
@@ -132,10 +214,10 @@ function App() {
   const onWfPrompt = () => {
     pytron.add_workflow().then(res => {
       if (res.success) {
-        pytron.notify("Workflow Added", `Imported ${res.name} successfully`, "success");
+        pytron.send_notification("Workflow Added", `Imported ${res.name} successfully`);
         setRefreshSeq(p => p + 1);
       } else if (res.error !== "No file selected") {
-        pytron.notify("Error", res.error || "Failed to add workflow", "error");
+        pytron.send_notification("Error", res.error || "Failed to add workflow");
       }
     });
   };
@@ -156,6 +238,11 @@ function App() {
     if (view !== 'search') return;
     let ignored = false;
 
+    const isExplicitPath = (q) => {
+      const c = q.trim();
+      return c.startsWith('t:') || c.startsWith('@') || (c.length >= 2 && c[1] === ':') || c.startsWith('/') || c.startsWith('\\');
+    };
+
     const fetchResults = async () => {
       try {
         const data = await pytron.search_items(query)
@@ -164,8 +251,11 @@ function App() {
           if (query.trim() === '') {
             setSelectedIndex(-1);
           } else {
-            // Keep selection if it exists and is valid
+            const isPath = isExplicitPath(query);
             setSelectedIndex(prev => {
+              // For paths, ALWAYS snap to the first result to enable instant Enter/Tab
+              if (isPath) return 0;
+              // For normal search, keep current selection if valid
               if (prev >= 0 && prev < data.length) return prev;
               return data.length > 0 ? 0 : -1;
             });
@@ -176,7 +266,11 @@ function App() {
         console.error("Search failed", e)
       }
     }
-    const timer = setTimeout(fetchResults, 200); // 200ms debounce to avoid overwhelming the backend
+
+    // Snappier response for path navigation (like a terminal)
+    const delay = isExplicitPath(query) ? 30 : 150;
+    const timer = setTimeout(fetchResults, delay);
+
     return () => {
       ignored = true;
       clearTimeout(timer)
@@ -196,17 +290,25 @@ function App() {
 
     if (item.action === 'settings') {
       setView('settings');
+      setShowActionMenu(false);
       setQuery('');
     } else if (item.action === 'open_scratch') {
       setView('scratchpad');
+      setShowActionMenu(false);
       setQuery('');
     } else if (item.action === 'open_lab') {
       setView('python_lab');
+      setShowActionMenu(false);
       setQuery('');
     } else if (item.type === 'term_autofill') {
       setQuery(item.new_query);
       execLock.current = false; // Reset lock immediately for typing
       return;
+    } else if (item.action === 'start_timer') {
+      setActiveTimer({ total: item.seconds, remaining: item.seconds });
+      setQuery('');
+      pytron.send_notification("Timer Started", `Countdown for ${Math.floor(item.seconds / 60)}m started.`);
+      pytron.hide();
     } else {
       pytron.run_item(item, currentQuery);
       // Don't clear query for search commands that might keep window open
@@ -252,7 +354,7 @@ function App() {
   }, [view, showActionMenu])
 
   return (
-    <div className="ray-container" style={{ '--accent': themeColor }}>
+    <div className={`ray-container ${effectivelyResizing ? 'is-resizing' : ''}`} style={{ '--accent': themeColor }}>
       {view === 'search' && (
         <SearchScreen
           query={query} setQuery={setQuery}
@@ -261,12 +363,13 @@ function App() {
           executeItem={executeItem}
           setShowActionMenu={setShowActionMenu}
           togglePin={togglePin}
-          hideFooter={hideFooter}
+          zenMode={zenMode}
           openSettings={() => setView('settings')}
+          isResizing={effectivelyResizing}
         />
       )}
 
-      {view === 'settings' && <SettingsView onClose={() => setView('search')} />}
+      {view === 'settings' && <SettingsView onClose={() => setView('search')} isResizing={effectivelyResizing} />}
 
       {view === 'scratchpad' && (
         <ScratchpadScreen
@@ -293,22 +396,19 @@ function App() {
         />
       )}
 
-      {((!hideFooter && view === 'search') || (hideFooter && query.trim().length > 0)) && (
-        <div className="ray-footer">
-          <div className="footer-left">
-            <span className="brand">Bite</span>
-          </div>
-          <div className="ray-footer-right">
-            {results[selectedIndex]?.url && <div className="hint"><span className="kbd">↵</span> Open Browser</div>}
-            {results[selectedIndex]?.path && <div className="hint"><span className="kbd">↵</span> Open File</div>}
-            {results[selectedIndex]?.action === 'calc_res' && <div className="hint"><span className="kbd">↵</span> Copy Result</div>}
-            <div className="action-button-primary" onClick={() => setView('settings')}>
-              Settings
-            </div>
-            <div className="action-button-primary" onClick={() => setShowActionMenu(true)}>
-              Actions
-            </div>
-          </div>
+      {/* Search Bar handles footer now for Zen mode alignment */}
+      {activeTimer && (
+        <div
+          className="timer-overlay"
+          onClick={() => setActiveTimer(null)}
+          title="Click to cancel timer"
+        >
+          <Timer size={14} className="timer-spin" />
+          <span>{Math.floor(activeTimer.remaining / 60)}:{(activeTimer.remaining % 60).toString().padStart(2, '0')}</span>
+          <div
+            className="timer-progress"
+            style={{ width: `${(activeTimer.remaining / activeTimer.total) * 100}%` }}
+          />
         </div>
       )}
     </div>

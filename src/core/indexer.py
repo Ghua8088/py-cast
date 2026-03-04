@@ -5,6 +5,8 @@ import time
 import platform
 from pathlib import Path
 from typing import List, Dict
+from PIL import Image
+import colorsys
 
 
 class Indexer:
@@ -50,18 +52,22 @@ class Indexer:
                 name TEXT,
                 mtime REAL,
                 is_dir INTEGER,
-                last_seen REAL
+                last_seen REAL,
+                tags TEXT
             )
         """)
 
-        # Migration: Add last_seen if missing
+        # Migration: Add columns if missing
         try:
             cursor = conn.execute("PRAGMA table_info(files)")
             columns = [row[1] for row in cursor.fetchall()]
             if "last_seen" not in columns:
                 conn.execute("ALTER TABLE files ADD COLUMN last_seen REAL")
                 conn.commit()
-                print("Bite Indexer: Migrated database to include 'last_seen'")
+            if "tags" not in columns:
+                conn.execute("ALTER TABLE files ADD COLUMN tags TEXT")
+                conn.commit()
+                print("Bite Indexer: Migrated database to include 'tags'")
         except: pass
 
         conn.execute("""
@@ -133,6 +139,43 @@ class Indexer:
     def start_indexing(self):
         self.is_indexing = False
         threading.Thread(target=self._index_loop, daemon=True).start()
+
+    def _analyze_file(self, path: str) -> str:
+        """Extract semantic tags from a file (e.g. colors from images)"""
+        ext = os.path.splitext(path)[1].lower()
+        if ext in [".jpg", ".jpeg", ".png", ".bmp", ".webp"]:
+            try:
+                with Image.open(path) as img:
+                    # Resize to small to speed up dominant color analysis
+                    img.thumbnail((32, 32))
+                    if img.mode != 'RGB':
+                        img = img.convert('RGB')
+                    
+                    # Get dominant color
+                    pixels = list(img.getdata())
+                    r_avg = sum(p[0] for p in pixels) / len(pixels)
+                    g_avg = sum(p[1] for p in pixels) / len(pixels)
+                    b_avg = sum(p[2] for p in pixels) / len(pixels)
+                    
+                    h, s, v = colorsys.rgb_to_hsv(r_avg/255, g_avg/255, b_avg/255)
+                    h *= 360
+                    
+                    tags = []
+                    # Basic color classification
+                    if s < 0.1: tags.append("neutral")
+                    elif v < 0.2: tags.append("dark")
+                    elif v > 0.8 and s < 0.2: tags.append("white")
+                    else:
+                        if h < 20 or h > 340: tags.append("red")
+                        elif 20 <= h < 45: tags.append("orange")
+                        elif 45 <= h < 75: tags.append("yellow")
+                        elif 75 <= h < 160: tags.append("green")
+                        elif 160 <= h < 260: tags.append("blue")
+                        elif 260 <= h < 340: tags.append("purple")
+                    
+                    return ",".join(tags)
+            except: pass
+        return ""
 
     def _index_loop(self):
         # Initial wait for app to stabilize
@@ -230,7 +273,7 @@ class Indexer:
                     full_path = os.path.join(base, d)
                     try:
                         mtime = os.path.getmtime(full_path)
-                        batch.append((full_path, d, mtime, 1, current_scan_time))
+                        batch.append((full_path, d, mtime, 1, current_scan_time, ""))
                         count += 1
                     except: continue
                 
@@ -241,18 +284,21 @@ class Indexer:
                     full_path = os.path.join(base, f)
                     try:
                         mtime = os.path.getmtime(full_path)
-                        batch.append((full_path, f, mtime, 0, current_scan_time))
+                        # Minimal Analysis for now to avoid huge perf hits
+                        tags = self._analyze_file(full_path) if f.lower().endswith(('.jpg', '.png')) else ""
+                        batch.append((full_path, f, mtime, 0, current_scan_time, tags))
                         count += 1
                     except: continue
 
                 if len(batch) >= 1000:
                     cursor.executemany("""
-                        INSERT INTO files (path, name, mtime, is_dir, last_seen) 
-                        VALUES (?, ?, ?, ?, ?)
+                        INSERT INTO files (path, name, mtime, is_dir, last_seen, tags) 
+                        VALUES (?, ?, ?, ?, ?, ?)
                         ON CONFLICT(path) DO UPDATE SET
                             last_seen = excluded.last_seen,
                             name = CASE WHEN mtime != excluded.mtime THEN excluded.name ELSE name END,
                             is_dir = CASE WHEN mtime != excluded.mtime THEN excluded.is_dir ELSE is_dir END,
+                            tags = CASE WHEN mtime != excluded.mtime THEN excluded.tags ELSE tags END,
                             mtime = excluded.mtime
                     """, batch)
                     conn.commit()
@@ -261,12 +307,13 @@ class Indexer:
 
         if batch:
             cursor.executemany("""
-                INSERT INTO files (path, name, mtime, is_dir, last_seen) 
-                VALUES (?, ?, ?, ?, ?)
+                INSERT INTO files (path, name, mtime, is_dir, last_seen, tags) 
+                VALUES (?, ?, ?, ?, ?, ?)
                 ON CONFLICT(path) DO UPDATE SET
                     last_seen = excluded.last_seen,
                     name = CASE WHEN mtime != excluded.mtime THEN excluded.name ELSE name END,
                     is_dir = CASE WHEN mtime != excluded.mtime THEN excluded.is_dir ELSE is_dir END,
+                    tags = CASE WHEN mtime != excluded.mtime THEN excluded.tags ELSE tags END,
                     mtime = excluded.mtime
             """, batch)
             conn.commit()
@@ -297,7 +344,7 @@ class Indexer:
         # The background loop will pick this up in its next check, 
         # but we can also trigger the start_indexing again or wake it up.
         # For now, deleting the key is enough for next check.
-        self.bite.app.notify("Bite Indexer", "Full re-index queued for the background.")
+        self.bite.app.system_notification("Bite Indexer", "Full re-index queued for the background.")
 
     def index_path(self, path: str):
         """Surgically index a specific folder (Neighborhood Pulse)."""
@@ -348,7 +395,7 @@ class Indexer:
         # Layer 1: FTS Exact/Prefix Match (Fastest & Best)
         try:
             res = conn.execute(f"""
-                SELECT f.path, f.name, f.is_dir, 1 as rank_group
+                SELECT f.path, f.name, f.is_dir, f.tags, 1 as rank_group
                 FROM files f
                 JOIN files_fts ff ON f.rowid = ff.rowid
                 WHERE files_fts MATCH '"{query_safe}" OR {query_safe}*'
@@ -360,22 +407,23 @@ class Indexer:
         except sqlite3.OperationalError:
             res = []
 
-        # Layer 2: Fast Prefix & Substring Match (The 'starts-with' or 'contains' logic)
+        # Layer 2: Fast Prefix & Substring Match + Tag Matching
         exact_like = f"%{query_safe}%"
 
         fuzzy_res = conn.execute(
             """
-            SELECT path, name, is_dir, 2 as rank_group FROM files 
-            WHERE name LIKE ? 
+            SELECT path, name, is_dir, tags, 2 as rank_group FROM files 
+            WHERE name LIKE ? OR tags LIKE ?
             ORDER BY 
                 CASE 
                     WHEN name LIKE ? THEN 0 -- Starts with
-                    ELSE 1 -- Substring
+                    WHEN tags LIKE ? THEN 1 -- Tag match
+                    ELSE 2 -- Substring
                 END, 
                 length(name) ASC
             LIMIT ?
         """,
-            (exact_like, f"{query_safe}%", limit),
+            (exact_like, f"%{query_safe}%", f"{query_safe}%", f"%{query_safe}%", limit),
         ).fetchall()
 
         # Combine and deduplicate

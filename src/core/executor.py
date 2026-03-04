@@ -26,7 +26,40 @@ class Executor:
         try:
             itype = item.get("type")
             path = item.get("path")
+            # --- Universal Alias Expansion ---
+            query = self.bite.resolve_aliases(query)
             iid = item.get("id")
+
+            # Handle Multi-Command execution
+            commands = item.get("commands")
+            if commands and isinstance(commands, list):
+                # We iterate and execute each one
+                results = []
+                for i, cmd in enumerate(commands):
+                    # Skip layout tags if the user left them in
+                    if cmd.startswith("layout:"):
+                        continue
+                        
+                    # Create a dummy item for each sub-command
+                    sub_item = item.copy()
+                    sub_item.pop("commands", None)
+                    sub_item["path"] = cmd
+                    # Re-detect type for each sub-command
+                    cmd_str = str(cmd).strip()
+                    if cmd_str.startswith("http"):
+                        sub_item["id"] = f"_multi_sub_{i}"
+                        sub_item["type"] = "search"
+                        sub_item["url"] = cmd_str
+                    else:
+                        sub_item["type"] = "shell"
+                    
+                    sub_item["keep_open"] = True
+                    results.append(self.execute(sub_item, ""))
+                
+                # After all commands initiated, hide if needed
+                if not item.get("keep_open"):
+                    self.bite.app.hide()
+                return results
 
             # Recents Tracking
             if iid:
@@ -34,6 +67,10 @@ class Executor:
                     self.bite.recent_ids.remove(iid)
                 self.bite.recent_ids.insert(0, iid)
                 self.bite.recent_ids = self.bite.recent_ids[:10]
+                
+                # Mnemonic Learning (Quicksilver style)
+                if query and len(query.strip()) > 0:
+                    self.bite.record_selection(query, iid)
 
             if item.get("action") == "help":
                 self.cross_platform_open("https://pytron-kit.github.io/bite")
@@ -42,7 +79,9 @@ class Executor:
             if itype == "search":
                 self._handle_search(item, query)
             elif itype == "shell":
-                self._run_shell(item, path if path else item.get("id"))
+                cmd_base = path if path else item.get("id")
+                full_cmd = self._append_query_args(cmd_base, query, item.get("id", ""))
+                self._run_shell(item, full_cmd)
             elif itype == "workflow":
                 if path:
                     # Resolve python interpreter
@@ -73,27 +112,55 @@ class Executor:
                 if path.startswith("http"):
                     self.cross_platform_open(path)
                 else:
-                    self._run_shell(item, path)
+                    # Treat as raw shell command with potential args
+                    full_cmd = self._append_query_args(path, query, item.get("id", ""))
+                    self._run_shell(item, full_cmd)
 
-            if not item.get("keep_open"):
+            if not item.get("keep_open") and item.get("action") != "refresh_theme":
                 self.bite.app.hide()
             return True
         except Exception as e:
             return str(e)
 
+    def _append_query_args(self, base_cmd: str, full_query: str, item_id: str) -> str:
+        """Helper to append query parameters as arguments to a base command."""
+        q = full_query.strip()
+        # If query matches item_id or starts with it, extract the rest as args
+        # e.g. "code d:\path" where item_id is "code"
+        if q.lower().startswith(item_id.lower() + " "):
+            args = q[len(item_id):].strip()
+            return f"{base_cmd} {args}"
+        elif q.lower() == item_id.lower():
+            return base_cmd
+        
+        # If the query is unrelated to the trigger (e.g. searching 'cod' matches 'code')
+        # we don't append the query as it would just break the command
+        return base_cmd
+
     def _handle_search(self, item, query):
         q = query.strip()
         term = item.get("id", "").lower()
+        
+        # Determine if this is an explicit keyword search (e.g., "g my_query")
+        explicit_search = False
         if q.lower().startswith(term + " "):
-            q = q[len(term) :].strip()
+            q = q[len(term):].strip()
+            explicit_search = True
 
-        url = item["url"]
-        if not q or q.lower() == term:
-            p = urlparse(item["url"])
-            url = f"{p.scheme}://{p.netloc}"
-        else:
-            url = item["url"] + q
-        self.cross_platform_open(url)
+        url = item.get("url") or item.get("path")
+        
+        # Logic to decide if we should append the query to the URL:
+        # 1. Explicit keyword trigger was used AND there is a query body
+        # 2. It's the global "web_search" fallback item
+        # 3. But NEVER append if the query is empty or just matches the trigger
+        should_append = False
+        if explicit_search and q:
+            should_append = True
+        elif item.get("id") == "web_search" and q:
+            should_append = True
+            
+        target_url = url + q if should_append else url
+        self.cross_platform_open(target_url)
 
     def _handle_action(self, item):
         act = item["action"]
@@ -125,9 +192,9 @@ class Executor:
         elif act == "kill_pid":
             try:
                 psutil.Process(int(item["pid"])).kill()
-                self.bite.app.notify("Process Killed", f"Terminated {item['name']}", "success")
+                self.bite.app.system_notification("Process Killed", f"Terminated {item['name']}")
             except Exception as e:
-                self.bite.app.notify("Kill Failed", str(e), "error")
+                self.bite.app.system_notification("Kill Failed", str(e))
         elif act == "empty_trash":
             self._empty_trash()
         elif act in ["vol_up", "vol_down", "mute"]:
@@ -136,7 +203,7 @@ class Executor:
             self.cross_platform_open(str(self.bite.workflow_dir))
         elif act == "show_ip":
             ip = self.bite.get_external_ip()
-            self.bite.app.notify("Your External IP", ip)
+            self.bite.app.system_notification("Your External IP", ip)
             pyperclip.copy(ip)
         elif act == "restart_explorer":
             if self.platform == "Windows":
@@ -145,10 +212,15 @@ class Executor:
             self.bite.indexer.force_reindex()
         elif act == "new_workflow_ui":
             self.bite.app.emit("pytron:create_workflow_prompt")
+        elif act == "refresh_theme":
+            theme = self.bite.get_adaptive_theme()
+            self.bite.app.emit("pytron:theme_updated", theme)
         elif act == "run_term_cmd":
             cmd = item.get("cmd", "")
+            # Default to User Home for terminal sessions
+            cwd = os.path.expanduser("~")
             if self.platform == "Windows":
-                 subprocess.Popen(f'start cmd /k "{cmd}"', shell=True)
+                 subprocess.Popen(f'start cmd /k "{cmd}"', shell=True, cwd=cwd)
             elif self.platform == "Darwin":
                  subprocess.run(["osascript", "-e", f'tell application "Terminal" to do script "{cmd}"'])
             elif self.platform == "Linux":
@@ -190,8 +262,8 @@ class Executor:
         try:
             subprocess.Popen([binary, path], shell=(self.platform == "Windows"))
         except:
-            self.bite.app.notify(
-                "Error", f"Could not launch {binary}. Is it in PATH?", "error"
+            self.bite.app.system_notification(
+                "Error", f"Could not launch {binary}. Is it in PATH?"
             )
 
     def _empty_trash(self):
@@ -226,7 +298,27 @@ class Executor:
             subprocess.run(["osascript", "-e", scripts[act]])
 
     def _run_shell(self, item, path):
+        # Universal Expansion handled via initial execute or here for direct calls
+        path = self.bite.resolve_aliases(path)
+
+        # Final Shell Safety: Wrap in quotes if it's a direct path starting with a drive
+        if ":" in path and not path.startswith('"'):
+            # If the path contains spaces and isn't a complex command line
+            if " " in path:
+                # Basic check: if it's a 'cd' or similar, we only quote the path part
+                parts = path.split(" ", 1)
+                if len(parts) > 1 and ":" in parts[1]:
+                    path = f'{parts[0]} "{parts[1].strip()}"'
+                else:
+                    path = f'"{path}"'
+        
+        # Default to User Home for general shell commands to avoid internal app dirs
+        cwd = item.get("cwd") or os.path.expanduser("~")
+
         if self.platform == "Windows":
-            subprocess.Popen(path, shell=item.get("shell", False))
+            subprocess.Popen(path, shell=item.get("shell", False), cwd=cwd)
         else:
-            subprocess.Popen(path.split())
+            try:
+                subprocess.Popen(path.split(), cwd=cwd)
+            except:
+                subprocess.Popen(path, shell=True, cwd=cwd)
