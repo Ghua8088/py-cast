@@ -19,6 +19,7 @@ from src.core.plugins import PluginManager
 from src.core.brain import Brain
 from src.utils.theme_engine import get_wallpaper_path, get_adaptive_color
 from src.utils.secure_store import secure_load, secure_save
+from src.utils.favicon_cache import FaviconCache
 from src.core.vault import VaultManager
 from src.core.git_manager import GitManager
 from src.core.bookmarks import BookmarksManager
@@ -44,6 +45,9 @@ class Bite:
         self.workflow_dir = self.config_dir / "workflows"
         self.workflow_dir.mkdir(parents=True, exist_ok=True)
         self.config_path = self.config_dir / "config.json"
+
+        # Initialize local persistent Favicon cache
+        self.favicon_cache = FaviconCache(self.config_dir, self)
 
         # Initialize data and clipboard
         self.user_data = self._load_config()

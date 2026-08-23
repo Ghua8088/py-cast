@@ -428,7 +428,7 @@ class Searcher:
             for p in providers:
                 icon = p["i"]
                 if use_favicons:
-                    icon = f"https://www.google.com/s2/favicons?domain={p['d']}&sz=64"
+                    icon = self.bite.favicon_cache.get_favicon(p['d'])
                 
                 all_res.append({
                     "id": f"g_search_{p['d']}",

@@ -82,6 +82,7 @@ class BookmarksManager:
 
             roots = data.get("roots", {})
 
+            use_favicons = self.bite.user_data.get("settings", {}).get("opt_in_favicons", True)
             def traverse(node, folder=""):
                 if not isinstance(node, dict):
                     return
@@ -91,6 +92,8 @@ class BookmarksManager:
                     url = node.get("url", "")
                     if url and not url.startswith("javascript:"):
                         folder_name = folder or "Bookmarks bar"
+                        icon = self.bite.favicon_cache.get_favicon(url) if use_favicons else "globe"
+                        is_img = bool(use_favicons and (icon.startswith("data:image") or icon.startswith("http")))
                         results.append({
                             "id": f"bm_{hash(url)}",
                             "name": name,
@@ -99,7 +102,8 @@ class BookmarksManager:
                             "folder": folder_name,
                             "desc": f"★ {browser_name} Bookmark ({folder_name})",
                             "cat": "Bookmarks",
-                            "icon": "globe",
+                            "icon": icon,
+                            "is_img": is_img,
                             "type": "search",
                             "action": "open_url",
                         })
@@ -136,6 +140,10 @@ class BookmarksManager:
 
         with self._lock:
             self.bookmarks = unique_bm
+
+        # Warm up persistent local favicon cache in the background
+        if self.bite.user_data.get("settings", {}).get("opt_in_favicons", True):
+            self.bite.favicon_cache.warmup_cache_async([b["url"] for b in unique_bm])
 
     def search_bookmarks(self, query: str) -> List[Dict]:
         # Privacy Check
