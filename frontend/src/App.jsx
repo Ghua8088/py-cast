@@ -40,17 +40,18 @@ function App() {
     isTransitioning: stateRef.current.isTransitioning
   };
 
+  const [settings, setSettings] = useState({});
   const interactionLock = useRef(false)
   const execLock = useRef(false)
   const resolving = useRef(new Set())
   const lastPos = useRef({ x: 0, y: 0 })
 
-  // Persistent Theme Sync
   // Persistent Theme & Settings Sync
   const syncSettings = async () => {
     try {
       const s = await pytron.get_settings();
       if (!s) return;
+      setSettings(s);
 
       // Apply Theme
       if (s.theme_color) {
@@ -150,7 +151,17 @@ function App() {
       if (isExpanding) setIsResizing(true);
 
       const timer = setTimeout(() => {
-        pytron.set_window_size(750, targetHeight);
+        // --- GUARDED RESIZE ---
+        // Prevent feedback loops by notifying pytron-client this is a manual resize
+        window.__pytron_manual_resize = true;
+        
+        pytron.set_window_size(750, targetHeight).then(() => {
+          // Re-enable automatic tracking after the window has had time to settle
+          setTimeout(() => {
+              window.__pytron_manual_resize = false;
+          }, 300);
+        });
+
         setTimeout(() => setIsResizing(false), 50);
       }, 15);
       return () => clearTimeout(timer);
@@ -243,9 +254,9 @@ function App() {
       return c.startsWith('t:') || c.startsWith('@') || (c.length >= 2 && c[1] === ':') || c.startsWith('/') || c.startsWith('\\');
     };
 
-    const fetchResults = async () => {
+    const fetchResults = async (isEnter = false) => {
       try {
-        const data = await pytron.search_items(query)
+        const data = await pytron.search_items(isEnter ? query + "\n" : query)
         if (!ignored) {
           setResults(data)
           if (query.trim() === '') {
@@ -269,7 +280,7 @@ function App() {
 
     // Snappier response for path navigation (like a terminal)
     const delay = isExplicitPath(query) ? 30 : 150;
-    const timer = setTimeout(fetchResults, delay);
+    const timer = setTimeout(() => fetchResults(false), delay);
 
     return () => {
       ignored = true;
@@ -366,6 +377,7 @@ function App() {
           zenMode={zenMode}
           openSettings={() => setView('settings')}
           isResizing={effectivelyResizing}
+          showSystemStats={settings?.show_system_stats || false}
         />
       )}
 

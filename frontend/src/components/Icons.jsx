@@ -41,6 +41,14 @@ export const LucideIcon = ({ item, size = 20 }) => {
   if (id === 'grok' || id === 'perplexity') return <Cpu size={size} />;
   if (id === 'shield-check') return <Star size={size} />; // For secure vault check
   
+  // Generic Fallbacks based on item.icon string (from backend)
+  if (item.icon === 'layers') return <LayoutGrid size={size} />;
+  if (item.icon === 'globe') return <Globe size={size} />;
+  if (item.icon === 'terminal') return <Terminal size={size} />;
+  if (item.icon === 'zap') return <Zap size={size} />;
+  if (item.icon === 'folder') return <Folder size={size} />;
+  if (item.icon === 'file-text') return <FileText size={size} />;
+  
   if (cat === 'calc') return <Hash size={size} />;
   if (cat === 'clipboard') return <Clipboard size={size} />;
 

@@ -4,18 +4,24 @@ import { ItemIcon } from './Icons'
 import DetailsPanel from './DetailsPanel'
 import pytron from 'pytron-client'
 
-function SysStats() {
+function SysStats({ showStats }) {
   const [sysInfo, setSysInfo] = useState({ cpu: 0, mem: 0 });
+
   useEffect(() => {
+    if (!showStats) return;
     pytron.waitForBackend().then(() => {
-      setSysInfo(pytron.state.sys_info || { cpu: 0, mem: 0 });
+      setSysInfo(pytron.state?.sys_info || { cpu: 0, mem: 0 });
     });
+
     const handleState = (e) => {
-      if (e.detail.sys_info) setSysInfo(e.detail.sys_info);
+      if (e.detail?.sys_info) setSysInfo(e.detail.sys_info);
     };
+
     window.addEventListener('pytron:state', handleState);
     return () => window.removeEventListener('pytron:state', handleState);
-  }, []);
+  }, [showStats]);
+
+  if (!showStats) return null;
 
   return (
     <div className="ray-stats-container">
@@ -33,7 +39,7 @@ function SysStats() {
 
 export default function SearchScreen({
   query, setQuery, results, selectedIndex, setSelectedIndex,
-  executeItem, setShowActionMenu, togglePin, zenMode, openSettings, isResizing
+  executeItem, setShowActionMenu, togglePin, zenMode, openSettings, isResizing, showSystemStats
 }) {
   const inputRef = useRef(null)
   const listRef = useRef(null)
@@ -73,7 +79,14 @@ export default function SearchScreen({
       }
 
       if (targetItem) {
-        executeItem(targetItem);
+        if (targetItem.id === 'ai_searching') {
+          // Explicitly re-trigger search to "submit" the prompt
+          pytron.search_items(query + "\n").then(data => {
+            // Update results via parent or similar if needed, but the backend check handles it
+          });
+        } else {
+          executeItem(targetItem);
+        }
       } else if (query.startsWith('t:')) {
         // Fallback for terminal: execute the direct command if no item selected
         executeItem({ id: 'run_term', cmd: query.substring(2).trim(), action: 'run_term_cmd' });
@@ -155,7 +168,7 @@ export default function SearchScreen({
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
         />
-        <SysStats />
+        <SysStats showStats={showSystemStats} />
       </div>
 
       {showBody && (
@@ -251,11 +264,13 @@ export default function SearchScreen({
               {results[selectedIndex]?.url && <div className="hint"><span className="kbd">↵</span> Open Browser</div>}
               {results[selectedIndex]?.path && <div className="hint"><span className="kbd">↵</span> Open File</div>}
               {results[selectedIndex]?.action === 'calc_res' && <div className="hint"><span className="kbd">↵</span> Copy Result</div>}
-              <div className="action-button-primary" onClick={openSettings}>
-                Settings
+              <div className="ray-footer-pill" onClick={openSettings}>
+                <span>Settings</span>
+                <span className="kbd-small">Ctrl+,</span>
               </div>
-              <div className="action-button-primary" onClick={() => setShowActionMenu(true)}>
-                Actions
+              <div className="ray-footer-pill active-pill" onClick={() => setShowActionMenu(true)}>
+                <span>Actions</span>
+                <span className="kbd-small">Ctrl+K</span>
               </div>
             </div>
           </div>

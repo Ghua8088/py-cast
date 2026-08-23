@@ -40,6 +40,15 @@ export default function DetailsPanel({ item, onExecute }) {
         <div className="details-desc-hero">{item.desc}</div>
       </div>
 
+      {item.cat === 'AI Brain' && item.content && (
+        <div className="details-section ai-summary-section">
+          <div className="details-section-title">Bite Intelligence Analysis</div>
+          <div className="ai-content-body">
+            {item.content}
+          </div>
+        </div>
+      )}
+
       <div className="details-section">
         <div className="details-section-title">Key Actions</div>
         <div className="details-action-grid">

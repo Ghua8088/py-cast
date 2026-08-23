@@ -25,10 +25,24 @@ export default function ActionMenu({ item, query, onClose, setView, setQuery, ex
     });
   }
 
-  if (item.path || item.content) {
+  if (item.github_url || item.remote_url) {
     actions.push({
-      label: 'Copy Path/Content', kbd: 'CTRL C',
-      action: () => { pytron.copy_to_clipboard(item.content || item.path); onClose(); }
+      label: 'Open on GitHub', kbd: 'CTRL G',
+      action: () => { executeItem({ ...item, action: 'open_github', keep_open: false }); onClose(); }
+    });
+  }
+
+  if (item.url && !item.path) {
+    actions.push({
+      label: 'Open in Browser', kbd: '↵',
+      action: () => { executeItem({ ...item, action: 'open_url', keep_open: false }); onClose(); }
+    });
+  }
+
+  if (item.path || item.content || item.url) {
+    actions.push({
+      label: 'Copy Path / Content / URL', kbd: 'CTRL C',
+      action: () => { pytron.copy_to_clipboard(item.content || item.url || item.path); onClose(); }
     });
   }
 

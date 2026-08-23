@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import pytron from 'pytron-client'
 import { Plus, Trash2, ArrowLeft, Link as LinkIcon, Scissors, RefreshCw, Download, Zap, Edit2, FolderOpen } from 'lucide-react'
+import { ItemIcon } from './Icons'
+import VaultSection from './VaultSection'
 
 function UpdaterSection() {
   const [status, setStatus] = useState('idle'); // idle, checking, available, updating
@@ -82,11 +84,15 @@ export default function SettingsView({ onClose, isResizing }) {
   const [excludeDir, setExcludeDir] = useState('')
   const [pathAliases, setPathAliases] = useState({})
   const [newAlias, setNewAlias] = useState({ key: '', path: '' })
+  const [projectRoots, setProjectRoots] = useState([])
 
   useEffect(() => {
     pytron.get_user_shortcuts().then(setShortcuts)
     pytron.get_user_snippets().then(setSnippets)
     pytron.get_path_aliases().then(setPathAliases)
+    if (pytron.get_project_roots) {
+      pytron.get_project_roots().then(roots => setProjectRoots(roots || []))
+    }
     pytron.get_settings().then(async (s) => {
       setSettings(s)
       if (s.theme_color === 'adaptive') {
@@ -175,6 +181,22 @@ export default function SettingsView({ onClose, isResizing }) {
     setPathAliases(res);
   };
 
+  const handleAddProjectRoot = async () => {
+    if (!pytron.select_project_root) return;
+    const res = await pytron.select_project_root();
+    if (res && res.path) {
+      const updated = await pytron.add_project_root(res.path);
+      setProjectRoots(updated || []);
+      pytron.send_notification("Project Root Added", `Scanning ${res.path} for Git repositories.`);
+    }
+  };
+
+  const handleRemoveProjectRoot = async (p) => {
+    if (!pytron.remove_project_root) return;
+    const updated = await pytron.remove_project_root(p);
+    setProjectRoots(updated || []);
+  };
+
   return (
     <div className="settings-view">
       <div className="settings-header">
@@ -261,6 +283,140 @@ export default function SettingsView({ onClose, isResizing }) {
                     style={{ width: '18px', height: '18px', accentColor: 'var(--accent)' }}
                   />
                 </label>
+                <label className="st-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
+                  <div>
+                    <span style={{ fontSize: '13px', display: 'block' }}>System Stats in Search Bar</span>
+                    <span className="dim" style={{ fontSize: '11px' }}>Show Battery, CPU, RAM & Time HUD in the top search bar.</span>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={settings.show_system_stats || false}
+                    onChange={e => updateSetting('show_system_stats', e.target.checked)}
+                    style={{ width: '18px', height: '18px', accentColor: 'var(--accent)' }}
+                  />
+                </label>
+              </div>
+            </div>
+
+            {/* Code Editor / IDE */}
+            <div className="settings-section" style={{ borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
+              <div className="section-title">Preferred Code Editor</div>
+              <p className="dim" style={{ fontSize: '11px', marginBottom: '8px' }}>
+                Select your editor command or browse an exact executable path (used for <b>repo:</b> and <b>Open in Editor</b>).
+              </p>
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                <select
+                  className="st-input"
+                  style={{ width: '150px' }}
+                  value={
+                    ['cursor', 'code', 'codium', 'pycharm', 'nvim'].includes(settings.preferred_ide)
+                      ? settings.preferred_ide
+                      : settings.preferred_ide ? 'custom' : ''
+                  }
+                  onChange={e => {
+                    const val = e.target.value;
+                    if (val !== 'custom') {
+                      updateSetting('preferred_ide', val);
+                    }
+                  }}
+                >
+                  <option value="">Auto-Detect</option>
+                  <option value="cursor">Cursor</option>
+                  <option value="code">VS Code</option>
+                  <option value="codium">VSCodium</option>
+                  <option value="pycharm">PyCharm</option>
+                  <option value="nvim">Neovim</option>
+                  <option value="custom">Custom Path...</option>
+                </select>
+                <input
+                  placeholder="Command or full path (e.g. cursor or C:\...\Code.exe)"
+                  value={settings.preferred_ide || ''}
+                  onChange={e => updateSetting('preferred_ide', e.target.value)}
+                  className="st-input"
+                  style={{ flex: 1 }}
+                />
+                <button
+                  className="st-btn secondary"
+                  title="Browse Executable..."
+                  onClick={async () => {
+                    if (pytron.select_ide_path) {
+                      const res = await pytron.select_ide_path();
+                      if (res && res.path) {
+                        updateSetting('preferred_ide', res.path);
+                        pytron.send_notification("Editor Updated", `Preferred editor set to ${res.path}`);
+                      }
+                    }
+                  }}
+                >
+                  <FolderOpen size={16} />
+                </button>
+              </div>
+            </div>
+
+            {/* Privacy & Features */}
+            <div className="settings-section" style={{ borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
+              <div className="section-title">Privacy & Intelligence</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <label className="st-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
+                  <div>
+                    <span style={{ fontSize: '13px', display: 'block' }}>Smart Learning (ML)</span>
+                    <span className="dim" style={{ fontSize: '11px' }}>Learn from search patterns to rank common items higher.</span>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={settings.opt_in_ml}
+                    onChange={e => updateSetting('opt_in_ml', e.target.checked)}
+                    style={{ width: '18px', height: '18px', accentColor: 'var(--accent)' }}
+                  />
+                </label>
+                <label className="st-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
+                  <div>
+                    <span style={{ fontSize: '13px', display: 'block' }}>Clipboard Suggestions</span>
+                    <span className="dim" style={{ fontSize: '11px' }}>Show copied links/items as search results.</span>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={settings.opt_in_clipboard}
+                    onChange={e => updateSetting('opt_in_clipboard', e.target.checked)}
+                    style={{ width: '18px', height: '18px', accentColor: 'var(--accent)' }}
+                  />
+                </label>
+                <label className="st-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
+                  <div>
+                    <span style={{ fontSize: '13px', display: 'block' }}>Zero-Weight AI (DDG)</span>
+                    <span className="dim" style={{ fontSize: '11px' }}>Get summaries & instant answers via DuckDuckGo API.</span>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={settings.opt_in_ai}
+                    onChange={e => updateSetting('opt_in_ai', e.target.checked)}
+                    style={{ width: '18px', height: '18px', accentColor: 'var(--accent)' }}
+                  />
+                </label>
+                <label className="st-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
+                  <div>
+                    <span style={{ fontSize: '13px', display: 'block' }}>Browser Bookmarks Search</span>
+                    <span className="dim" style={{ fontSize: '11px' }}>Allow Bite to read local Chrome, Brave, and Edge bookmarks offline (type <b>bm:</b> or <b>brave:</b>).</span>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={settings.opt_in_bookmarks || false}
+                    onChange={e => updateSetting('opt_in_bookmarks', e.target.checked)}
+                    style={{ width: '18px', height: '18px', accentColor: 'var(--accent)' }}
+                  />
+                </label>
+                <label className="st-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
+                  <div>
+                    <span style={{ fontSize: '13px', display: 'block' }}>Enhanced Web Icons</span>
+                    <span className="dim" style={{ fontSize: '11px' }}>Fetch high-quality favicons for web results (Google Proxy).</span>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={settings.opt_in_favicons}
+                    onChange={e => updateSetting('opt_in_favicons', e.target.checked)}
+                    style={{ width: '18px', height: '18px', accentColor: 'var(--accent)' }}
+                  />
+                </label>
               </div>
             </div>
 
@@ -316,16 +472,18 @@ export default function SettingsView({ onClose, isResizing }) {
               <div className="shortcuts-list">
                 {shortcuts.map(s => (
                   <div className={`shortcut-item ${editingId === s.id ? 'is-editing' : ''}`} key={s.id}>
-                    <div className="sc-icon"><LinkIcon size={14} /></div>
+                    <div className="sc-icon">
+                      <ItemIcon item={s} />
+                    </div>
                     <div className="sc-info">
                       <span className="sc-key">{s.id}</span>
                       <span className="sc-url">{s.commands ? `Multi-step (${s.commands.length})` : (s.url || s.path)}</span>
                     </div>
-                    <div className="sc-actions" style={{ display: 'flex', gap: '8px' }}>
-                      <div className="sc-edit" title="Edit" onClick={() => handleEditInit(s)} style={{ cursor: 'pointer', opacity: 0.6 }}>
-                        <Edit2 size={14} />
-                      </div>
-                      <div className="sc-del" title="Delete" onClick={() => handleDelete(s.id)} style={{ cursor: 'pointer', opacity: 0.6, color: '#ff453a' }}>
+                  <div className="sc-actions" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <div className="sc-edit" title="Edit" onClick={() => handleEditInit(s)} style={{ cursor: 'pointer', opacity: 0.6, display: 'flex', alignItems: 'center' }}>
+                      <Edit2 size={14} />
+                    </div>
+                    <div className="sc-del" title="Delete" onClick={() => handleDelete(s.id)} style={{ cursor: 'pointer', opacity: 0.6, color: '#ff453a', display: 'flex', alignItems: 'center' }}>
                         <Trash2 size={14} />
                       </div>
                     </div>
@@ -469,6 +627,32 @@ export default function SettingsView({ onClose, isResizing }) {
             </div>
 
             <div className="settings-section" style={{ borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
+              <div className="section-title">Git & Workspace Roots</div>
+              <p className="dim" style={{ fontSize: '11px', marginBottom: '8px' }}>
+                Custom folders to scan for Git repositories (type <b>repo:</b> in search).
+              </p>
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
+                <button className="st-btn" onClick={handleAddProjectRoot}>
+                  <FolderOpen size={14} /> Add Project Folder...
+                </button>
+              </div>
+              <div className="shortcuts-list">
+                {projectRoots.map((rootPath, i) => (
+                  <div className="shortcut-item" key={i}>
+                    <div className="sc-icon"><FolderOpen size={14} /></div>
+                    <div className="sc-info">
+                      <span className="sc-url">{rootPath}</span>
+                    </div>
+                    <div className="sc-del" onClick={() => handleRemoveProjectRoot(rootPath)}>
+                      <Trash2 size={14} />
+                    </div>
+                  </div>
+                ))}
+                {projectRoots.length === 0 && <div className="dim" style={{ fontSize: '11px' }}>Scanning standard developer folders automatically. Add custom folders above.</div>}
+              </div>
+            </div>
+
+            <div className="settings-section" style={{ borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
               <div className="section-title">Workflows</div>
               <p className="dim" style={{ fontSize: '12px', marginBottom: '12px' }}>
                 Extend Bite using Python. Scripts in your workflows folder are indexed automatically.
@@ -496,6 +680,8 @@ export default function SettingsView({ onClose, isResizing }) {
                 </button>
               </div>
             </div>
+
+            <VaultSection />
 
             <UpdaterSection />
           </>
