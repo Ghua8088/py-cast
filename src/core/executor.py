@@ -116,7 +116,7 @@ class Executor:
                     full_cmd = self._append_query_args(path, query, item.get("id", ""))
                     self._run_shell(item, full_cmd)
 
-            if not item.get("keep_open") and item.get("action") != "refresh_theme":
+            if not item.get("keep_open") and item.get("action") != "refresh_theme" and item.get("cat") != "AI Brain":
                 self.bite.app.hide()
             return True
         except Exception as e:
@@ -182,6 +182,15 @@ class Executor:
                 subprocess.run(["systemctl", "suspend"])
         elif act == "paste":
             pyperclip.copy(item["content"])
+        elif act == "vault_paste":
+            service = item.get("service")
+            username = item.get("username")
+            password = self.bite.vault.get_credential(service, username)
+            if password:
+                pyperclip.copy(password)
+                self.bite.app.system_notification("Vault Secret Copied", f"Password for {service} ({username}) is in clipboard.")
+            else:
+                self.bite.app.system_notification("Vault Error", f"Could not find credential for {service}.")
         elif act == "kill_py":
             for proc in psutil.process_iter():
                 try:
@@ -226,13 +235,20 @@ class Executor:
             elif self.platform == "Linux":
                  subprocess.run(["gnome-terminal", "--", "bash", "-c", f"{cmd}; exec bash"])
 
-        # --- File Context Actions ---
+        # --- File & Dev Context Actions ---
         elif act == "reveal" and path:
             self._reveal_in_explorer(path)
         elif act == "open_term" and path:
             self._open_terminal(path)
-        elif act == "ide_code" and path:
-            self._open_in_ide(path, "code")
+        elif act in ["ide_code", "open_ide"] and path:
+            editor = item.get("editor", "code")
+            self._open_in_ide(path, editor)
+        elif act == "open_github":
+            target_url = item.get("github_url") or item.get("remote_url") or item.get("url")
+            if target_url:
+                self.cross_platform_open(target_url)
+        elif act == "open_url" and item.get("url"):
+            self.cross_platform_open(item["url"])
 
     def _reveal_in_explorer(self, path):
         if self.platform == "Windows":
@@ -257,14 +273,73 @@ class Executor:
         elif self.platform == "Linux":
             subprocess.run(["gnome-terminal", "--working-directory", target])
 
-    def _open_in_ide(self, path, binary="code"):
-        # "code" for VSCode, "cursor" for Cursor, etc.
-        try:
-            subprocess.Popen([binary, path], shell=(self.platform == "Windows"))
-        except:
-            self.bite.app.system_notification(
-                "Error", f"Could not launch {binary}. Is it in PATH?"
-            )
+    def _find_ide_executable(self, preferred="code"):
+        """Locates the full executable path for VS Code, Cursor, or other IDEs."""
+        import shutil
+
+        # 1. Check if binary is in PATH
+        for cmd in [preferred, f"{preferred}.cmd", f"{preferred}.exe", "cursor", "cursor.cmd", "code", "code.cmd"]:
+            found = shutil.which(cmd)
+            if found:
+                return found
+
+        # 2. Check standard Windows AppData / Program Files paths
+        if self.platform == "Windows":
+            local_appdata = os.environ.get("LOCALAPPDATA", "")
+            prog_files = os.environ.get("ProgramFiles", "")
+            prog_files_x86 = os.environ.get("ProgramFiles(x86)", "")
+
+            candidates = [
+                # Cursor
+                os.path.join(local_appdata, r"Programs\cursor\Cursor.exe"),
+                os.path.join(local_appdata, r"Programs\cursor\resources\app\bin\cursor.cmd"),
+                # VS Code
+                os.path.join(local_appdata, r"Programs\Microsoft VS Code\Code.exe"),
+                os.path.join(local_appdata, r"Programs\Microsoft VS Code\bin\code.cmd"),
+                os.path.join(prog_files, r"Microsoft VS Code\Code.exe"),
+                os.path.join(prog_files_x86, r"Microsoft VS Code\Code.exe"),
+                # VSCodium
+                os.path.join(local_appdata, r"Programs\VSCodium\VSCodium.exe"),
+            ]
+            for c in candidates:
+                if os.path.exists(c):
+                    return c
+
+        elif self.platform == "Darwin":
+            mac_candidates = [
+                "/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code",
+                "/Applications/Cursor.app/Contents/Resources/app/bin/cursor",
+            ]
+            for c in mac_candidates:
+                if os.path.exists(c):
+                    return c
+
+        return None
+
+    def _open_in_ide(self, path, binary=None):
+        # 1. User explicit setting takes top priority
+        user_ide = self.bite.user_data.get("settings", {}).get("preferred_ide", "").strip()
+        target_ide = user_ide or binary or "code"
+
+        # If user selected an exact executable path
+        if os.path.isfile(target_ide) and os.path.exists(target_ide):
+            try:
+                subprocess.Popen([target_ide, path], shell=(self.platform == "Windows"))
+                return True
+            except Exception as e:
+                print(f"Error launching configured IDE path {target_ide}: {e}")
+
+        exe = self._find_ide_executable(target_ide)
+        if exe:
+            try:
+                subprocess.Popen([exe, path], shell=(self.platform == "Windows"))
+                return True
+            except Exception as e:
+                print(f"Error launching IDE executable {exe}: {e}")
+
+        # Graceful fallback: Open in File Explorer / OS default handler if no IDE was found
+        self.cross_platform_open(path)
+        return True
 
     def _empty_trash(self):
         if self.platform == "Windows":

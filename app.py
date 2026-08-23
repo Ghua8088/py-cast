@@ -8,6 +8,9 @@ def main():
     app = App()
     bite = Bite(app)
     app.set_start_on_boot(True)
+    app.set_window_curvature(2)
+    app.set_background_material("mica")
+    app.set_border_color("#00000000")  # Transparent border for better aesthetics
     app.state.clipboard = []
 
     @app.expose
@@ -108,6 +111,44 @@ def main():
     def get_path_aliases():
         return bite.user_data.get("path_aliases", {})
 
+    # Project Roots API (for GitManager)
+    @app.expose
+    def add_project_root(p):
+        return bite.add_project_root(p)
+
+    @app.expose
+    def remove_project_root(p):
+        return bite.remove_project_root(p)
+
+    @app.expose
+    def get_project_roots():
+        return bite.get_project_roots()
+
+    @app.expose
+    def select_project_root():
+        return bite.select_project_root()
+
+    @app.expose
+    def select_ide_path():
+        return bite.select_ide_path()
+
+    # Vault API
+    @app.expose
+    def vault_list():
+        return bite.vault.list_credentials()
+
+    @app.expose
+    def vault_save(service, username, password):
+        return bite.vault.save_credential(service, username, password)
+
+    @app.expose
+    def vault_get(service, username):
+        return bite.vault.get_credential(service, username)
+
+    @app.expose
+    def vault_delete(service, username):
+        return bite.vault.delete_credential(service, username)
+
     # --- Updater Integration ---
     from pytron.updater import Updater
 
@@ -183,7 +224,7 @@ def main():
         if app.windows:
             app.windows[0].show()
         return True
-
+    
     app.run()
 
 

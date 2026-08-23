@@ -18,6 +18,11 @@ from src.core.indexer import Indexer
 from src.core.plugins import PluginManager
 from src.core.brain import Brain
 from src.utils.theme_engine import get_wallpaper_path, get_adaptive_color
+from src.utils.secure_store import secure_load, secure_save
+from src.core.vault import VaultManager
+from src.core.git_manager import GitManager
+from src.core.bookmarks import BookmarksManager
+from src.core.ide_manager import IDEManager
 
 
 class Bite:
@@ -51,6 +56,10 @@ class Bite:
         self.executor = Executor(self)
         self.indexer = Indexer(self)
         self.brain = Brain(self)
+        self.vault = VaultManager(self.config_dir)
+        self.git = GitManager(self)
+        self.bookmarks = BookmarksManager(self)
+        self.ide = IDEManager(self)
         self.plugins = PluginManager(self)
         self.plugins.load_plugins()
 
@@ -62,6 +71,7 @@ class Bite:
         # Background Tasks
         threading.Thread(target=self.scanner.clipboard_monitor, daemon=True).start()
         threading.Thread(target=self.scanner.system_monitor, daemon=True).start()
+        threading.Thread(target=self.git.scan_repos, daemon=True).start()
         self.indexer.start_indexing()
 
     def _get_base_registry(self):
@@ -389,6 +399,10 @@ class Bite:
                 "theme_color": "#5e5ce6",
                 "start_on_boot": False,
                 "hide_footer": False,
+                "opt_in_clipboard": False,
+                "opt_in_ml": False,
+                "opt_in_ai": False,
+                "opt_in_favicons": False,
                 "excluded_folders": [
                     "node_modules", ".git", ".vscode", "venv", "env", "__pycache__", "dist", "build"
                 ]
@@ -396,7 +410,12 @@ class Bite:
         }
         if self.config_path.exists():
             try:
-                data = json.loads(self.config_path.read_text())
+                loaded_data = secure_load(self.config_path)
+                data = loaded_data if isinstance(loaded_data, dict) else {}
+                # If migration fallback returns empty dict when looking at a broken file, data remains {}
+                if not data:
+                    data = {}
+
                 # Deep merge defaults for settings
                 for k, v in defaults.items():
                     if k not in data:
@@ -425,6 +444,9 @@ class Bite:
         return self.user_data.get("settings", {})
 
     def record_selection(self, query: str, item_id: str):
+        if not self.user_data.get("settings", {}).get("opt_in_ml", False):
+            return
+
         if not query or not item_id:
             return
         
@@ -455,6 +477,9 @@ class Bite:
         self.brain.record_event(item_id)
 
     def record_clipboard(self, content: str):
+        if not self.user_data.get("settings", {}).get("opt_in_clipboard", False):
+            return
+
         if not content or content == self._last_clipboard:
             return
         
@@ -471,7 +496,7 @@ class Bite:
         self._save_config()
 
     def _save_config(self):
-        self.config_path.write_text(json.dumps(self.user_data))
+        secure_save(self.config_path, self.user_data)
 
     def update_scratchpad(self, content):
         self.user_data["scratchpad"] = content
@@ -642,6 +667,13 @@ class Bite:
         all_aliases = self.user_data.get("aliases", {}).copy()
         path_aliases = self.user_data.get("path_aliases", {})
         all_aliases.update(path_aliases)
+
+        # Also resolve shortcut IDs as aliases
+        for sc in self.user_data.get("shortcuts", []):
+            sc_id = sc.get("id", "")
+            sc_cmd = sc.get("url") or sc.get("path")
+            if sc_id and sc_cmd:
+                all_aliases[sc_id] = sc_cmd
         
         # Sort by key length descending to prevent partial matches of shorter aliases
         sorted_keys = sorted(all_aliases.keys(), key=len, reverse=True)
@@ -649,7 +681,8 @@ class Bite:
         expanded = text
         for k in sorted_keys:
             alias = k if k.startswith("@") else f"@{k}"
-            target = all_aliases[k].rstrip("\\/")
+            # Ensure target is a string for rstrip
+            target = str(all_aliases[k]).rstrip("\\/")
             
             # Replace @alias/ or @alias\ with target\
             if f"{alias}/" in expanded:
@@ -699,15 +732,29 @@ class Bite:
             
             if is_web:
                 if not cmd.startswith("http"): cmd = "https://" + cmd
+                # Heuristic for favicon: using google favicon service as proxy
+                domain = cmd.split("//")[-1].split("/")[0]
+                favicon_url = f"https://www.google.com/s2/favicons?domain={domain}&sz=64"
+                
                 self.user_data["shortcuts"].append({
                     "id": k, "name": n, "type": "search", 
-                    "url": cmd, "cat": "Custom", "icon": "globe"
+                    "url": cmd, "cat": "Custom", "icon": favicon_url,
+                    "is_img": True
                 })
             else:
                 # Treat as shell command or file path
+                icon = "terminal"
+                if os.path.isabs(cmd) and os.path.exists(cmd):
+                    if os.path.isdir(cmd):
+                        icon = "folder"
+                    elif cmd.lower().endswith(".exe"):
+                        icon = "zap"
+                    else:
+                        icon = "file-text"
+
                 self.user_data["shortcuts"].append({
                     "id": k, "name": n, "type": "shell", 
-                    "path": cmd, "cat": "Custom", "icon": "terminal",
+                    "path": cmd, "cat": "Custom", "icon": icon,
                     "shell": True
                 })
             
@@ -757,6 +804,60 @@ class Bite:
                 del self.user_data["path_aliases"][k]
                 self._save_config()
         return self.user_data.get("path_aliases", {})
+
+    def add_project_root(self, p):
+        if "settings" not in self.user_data: self.user_data["settings"] = {}
+        roots = self.user_data["settings"].get("project_roots", [])
+        if p not in roots:
+            roots.append(p)
+            self.user_data["settings"]["project_roots"] = roots
+            self._save_config()
+            threading.Thread(target=self.git.scan_repos, daemon=True).start()
+        return self.user_data["settings"].get("project_roots", [])
+
+    def remove_project_root(self, p):
+        if "settings" in self.user_data and "project_roots" in self.user_data["settings"]:
+            roots = self.user_data["settings"]["project_roots"]
+            if p in roots:
+                roots.remove(p)
+                self.user_data["settings"]["project_roots"] = roots
+                self._save_config()
+                threading.Thread(target=self.git.scan_repos, daemon=True).start()
+        return self.user_data.get("settings", {}).get("project_roots", [])
+
+    def get_project_roots(self):
+        return self.user_data.get("settings", {}).get("project_roots", [])
+
+    def select_project_root(self):
+        """Opens native folder dialog for adding custom project root."""
+        if self.app.windows:
+            self.app.windows[0].hide()
+        folder_path = self.app.dialog_open_folder(title="Select Project Root Folder")
+        if self.app.windows:
+            self.app.windows[0].show()
+        if not folder_path:
+            return {"error": "No folder selected"}
+        if isinstance(folder_path, list):
+            if not folder_path:
+                return {"error": "No folder selected"}
+            folder_path = folder_path[0]
+        return {"path": str(folder_path)}
+
+    def select_ide_path(self):
+        """Opens native file dialog to let the user pick their custom editor/IDE executable."""
+        if self.app.windows:
+            self.app.windows[0].hide()
+        file_types = [("Executable Files", "*.exe;*.cmd;*.bat;*.app")] if self.platform == "Windows" else []
+        file_path = self.app.dialog_open_file(title="Select Editor / IDE Executable", file_types=file_types)
+        if self.app.windows:
+            self.app.windows[0].show()
+        if not file_path:
+            return {"error": "No file selected"}
+        if isinstance(file_path, list):
+            if not file_path:
+                return {"error": "No file selected"}
+            file_path = file_path[0]
+        return {"path": str(file_path)}
 
     def _create_file_result(self, entry, desc, tags=None):
         # ALWAYS force a real icon for file/search results to ensure OS logos show up

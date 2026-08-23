@@ -40,37 +40,85 @@ declare module 'pytron-client' {
     /**
      * Copies text to the system clipboard.
      */
-    clipboard_write_text(text: string): Promise<any>;
+    clipboard_write_text(text: string): Promise<boolean>;
     /**
      * Returns text from the system clipboard.
      */
-    clipboard_read_text(): Promise<any>;
+    clipboard_read_text(): Promise<string>;
     /**
      * Returns hardware and OS information.
      */
-    system_get_info(): Promise<any>;
+    system_get_info(): Promise<Record<string, any>>;
+    /**
+     * Forces rounded or square corners on Windows 11.
+     */
+    window_set_curvature(preference?: any): Promise<any>;
+    /**
+     * Sets the window border color on supported platforms.
+     */
+    window_set_border_color(color_hex: string): Promise<any>;
+    /**
+     * Sets the window background material (Windows 11).
+     * Options: 'mica', 'acrylic', 'tabbed', 'none'
+     */
+    window_set_background_material(material?: string): Promise<any>;
+    /**
+     * Helper to enable/disable Mica effect on Windows 11.
+     */
+    window_set_mica_effect(enable?: boolean): Promise<any>;
     /**
      * Sets a value in the persistent store.
      */
-    store_set(key: any, value: any): Promise<any>;
+    store_set(key: string, value: any): Promise<any>;
     /**
      * Gets a value from the persistent store.
      */
-    store_get(key: any, default: any): Promise<any>;
+    store_get(key: string, default_?: any): Promise<any>;
     /**
      * Removes a key from the persistent store.
      */
-    store_delete(key: any): Promise<any>;
+    store_delete(key: string): Promise<boolean>;
+    /**
+     * Quits the application.
+     */
     app_quit(): Promise<any>;
+    /**
+     * Shows all application windows.
+     */
     app_show(): Promise<any>;
+    /**
+     * Hides all application windows.
+     */
     app_hide(): Promise<any>;
-    app_is_visible(): Promise<any>;
+    /**
+     * Returns True if the primary window is visible.
+     */
+    app_is_visible(): Promise<boolean>;
+    /**
+     * Centers the primary window on screen.
+     */
+    app_center(): Promise<any>;
+    /**
+     * Minimizes the primary window.
+     */
+    app_minimize(): Promise<any>;
+    /**
+     * Maximizes the primary window.
+     */
+    app_maximize(): Promise<any>;
+    /**
+     * Restores the primary window from minimized/maximized state.
+     */
+    app_restore(): Promise<any>;
     /**
      * Broadcasts an event to all open windows.
      * This enables simple cross-window communication.
      */
-    app_publish(event_name: string, data: any): Promise<any>;
-    app_ping(): Promise<any>;
+    app_publish(event_name: string, data?: any): Promise<any>;
+    /**
+     * Health-check: returns 'pong' to confirm the backend is alive.
+     */
+    app_ping(): Promise<string>;
     /**
      * Checks for application updates.
      * Returns update info if available, else None.
@@ -85,21 +133,63 @@ declare module 'pytron-client' {
      * Toggles the Pytron Inspector window.
      */
     app_toggle_inspector(): Promise<any>;
-    minimize(): Promise<any>;
-    toggle_maximize(): Promise<any>;
     /**
-     * Closes the window.
-     * If 'close_to_tray' config is True and force is False, it just hides the window.
+     * Opens developer tools for the primary window when supported.
      */
-    close(force: any): Promise<any>;
+    app_open_devtools(): Promise<any>;
+    search_items(query: string): Promise<any>;
+    run_item(item: Record<string, any>, query?: string): Promise<any>;
+    toggle_pin(item_id: string): Promise<any>;
+    resolve_icon(path: string): Promise<any>;
+    add_workflow(): Promise<any>;
+    get_scratchpad(): Promise<any>;
+    save_scratchpad(content: any): Promise<any>;
+    copy_to_clipboard(text: string): Promise<any>;
+    get_python_scratch(): Promise<any>;
+    save_python_scratch(code: any): Promise<any>;
+    run_python_scratch(code: any): Promise<any>;
+    promote_lab_to_workflow(name: any, code: any): Promise<any>;
+    send_notification(title: any, message: any): Promise<any>;
+    add_shortcut(k: any, n: any, u: any): Promise<any>;
+    remove_shortcut(k: any): Promise<any>;
+    get_user_shortcuts(): Promise<any>;
+    add_snippet(n: any, c: any): Promise<any>;
+    remove_snippet(sid: any): Promise<any>;
+    get_user_snippets(): Promise<any>;
+    add_path_alias(k: any, p: any): Promise<any>;
+    remove_path_alias(k: any): Promise<any>;
+    select_folder_for_alias(): Promise<any>;
+    get_path_aliases(): Promise<any>;
+    add_project_root(p: any): Promise<any>;
+    remove_project_root(p: any): Promise<any>;
+    get_project_roots(): Promise<any>;
+    select_project_root(): Promise<any>;
+    select_ide_path(): Promise<any>;
+    vault_list(): Promise<any>;
+    vault_save(service: any, username: any, password: any): Promise<any>;
+    vault_get(service: any, username: any): Promise<any>;
+    vault_delete(service: any, username: any): Promise<any>;
+    check_update(): Promise<any>;
+    install_update(info: any): Promise<any>;
+    set_window_size(w: any, h: any): Promise<any>;
+    create_workflow(n: any): Promise<any>;
+    get_settings(): Promise<any>;
+    update_settings(s: any): Promise<any>;
+    get_adaptive_theme(): Promise<any>;
     hide(): Promise<any>;
     show(): Promise<any>;
-    start_drag(): Promise<any>;
-    set_title(title: any): Promise<any>;
-    set_size(w: any, h: any): Promise<any>;
-    center(): Promise<any>;
-    system_notification(title: any, message: any, icon: any): Promise<any>;
-    set_bounds(x: any, y: any, width: any, height: any): Promise<any>;
+    minimize(): Promise<void>;
+    toggle_maximize(): Promise<void>;
+    close(force?: boolean): Promise<void>;
+    hide(): Promise<void>;
+    show(): Promise<void>;
+    start_drag(): Promise<void>;
+    set_title(title: string): Promise<void>;
+    set_size(w: number, h: number): Promise<void>;
+    center(width?: number, height?: number): Promise<void>;
+    set_bounds(x: number, y: number, width: number, height: number): Promise<void>;
+    set_border_color(color_hex: string): Promise<void>;
+    system_notification(title: string, message: string, icon?: string): Promise<void>;
     trigger_shortcut(combo: string): Promise<boolean>;
     get_registered_shortcuts(): Promise<string[]>;
   }

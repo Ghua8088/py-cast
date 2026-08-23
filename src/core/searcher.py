@@ -29,7 +29,38 @@ class Searcher:
         
         # Real-time Currency Cache
         self.currency_rates = {"usd": 1.0, "eur": 1.05, "gbp": 1.25} 
+        self.ai_cache = {}
         threading.Thread(target=self._update_currency_rates, daemon=True).start()
+
+    def _get_ai_result(self, query: str) -> Dict:
+        """Fetches a high-speed AI snippet without adding binary bloat."""
+        if not query or len(query) < 4: return None
+        if query in self.ai_cache: return self.ai_cache[query]
+        
+        try:
+            # We use an ultra-light API-based approach to keep binary size at 50MB
+            # DDG AI is free, fast, and doesn't require massive local LLM weights
+            url = f"https://api.duckduckgo.com/?q={requests.utils.quote(query)}&format=json&no_html=1&skip_disambig=1"
+            res = requests.get(url, timeout=2).json()
+            
+            abstract = res.get("AbstractText")
+            if abstract:
+                result = {
+                    "id": f"ai_{hash(query)}",
+                    "name": "Bite Intelligence",
+                    "desc": abstract[:120] + "...",
+                    "content": abstract,
+                    "cat": "AI Brain",
+                    "icon": "bot",
+                    "action": "copy",
+                    "score": 95,
+                    "learned": True
+                }
+                self.ai_cache[query] = result
+                return result
+        except:
+            pass
+        return None
 
     def _update_currency_rates(self):
         """Fetches real-time exchange rates in the background."""
@@ -69,6 +100,7 @@ class Searcher:
         return 0
 
     def get_results(self, query: str) -> List[Dict]:
+        query_raw = query
         query = query.lower().strip()
         # --- Universal Alias Expansion ---
         query = self.bite.resolve_aliases(query)
@@ -181,19 +213,27 @@ class Searcher:
         vault_matches = []
         if query.startswith("env:"):
             target = query[4:].strip()
-            vault = self.bite.user_data.get("env_vault", {})
             if not target:
                 vault_matches.append({
-                    "id": "vault_hint", "name": "Secure Env Vault", "desc": "Type 'env: [key]' to copy secret (e.g. env: OPENAI_API_KEY)",
+                    "id": "vault_hint", "name": "Secure Env Vault", "desc": "Type 'env: [key]' to copy secret (e.g. env: GitHub)",
                     "cat": "Security", "icon": "lock", "score": 100
                 })
             else:
-                for k, v in vault.items():
-                    if target.lower() in k.lower():
+                creds = self.bite.vault.list_credentials()
+                for cred in creds:
+                    service = cred.get("service", "")
+                    username = cred.get("username", "")
+                    if target.lower() in service.lower() or target.lower() in username.lower():
                         vault_matches.append({
-                            "id": f"vault_{k}", "name": f"Copy {k}", "content": v,
-                            "desc": "•••••••• (Secure storage)", "cat": "Security",
-                            "icon": "shield-check", "action": "paste", "score": 100
+                            "id": f"vault_{service}_{username}", 
+                            "name": f"Copy {service} password",
+                            "desc": f"Username: {username} (Secure storage)", 
+                            "cat": "Security",
+                            "icon": "shield-check", 
+                            "action": "vault_paste", 
+                            "service": service,
+                            "username": username,
+                            "score": 100
                         })
 
         # 8. Snippets
@@ -227,33 +267,112 @@ class Searcher:
         # 8. Plugins
         plugin_results = self.bite.plugins.get_plugin_results(query) if query else []
 
+        # 8b. Real-time AI Intelligence (Lightweight API, zero binary bloat)
+        ai_res = []
+        if not self.bite.user_data.get("settings", {}).get("opt_in_ai", True):
+            is_ai_search = False
+            is_submitted = False
+            search_term = ""
+        else:
+            is_ai_search = query.startswith("ai:") or query.startswith("ask:")
+            # Check if the query was explicitly "submitted" with a newline suffix (Bite frontend adds \b or similar sometimes or we check for raw input)
+            is_submitted = query_raw.endswith("\n") or query_raw.endswith("\r")
+            search_term = query[3:].strip() if is_ai_search else query
+
+        if query and not query.startswith("@") and (is_ai_search or (is_submitted and len(query) > 5)):
+            # We fetch this in a background-friendly way to avoid search lag
+            ai_data = self._get_ai_result(search_term)
+            if ai_data: 
+                if is_ai_search: 
+                    ai_data["score"] = 110 # Boost it to top
+                ai_res.append(ai_data)
+            elif (is_ai_search or is_submitted) and search_term:
+                # Add a "waiting" or "search" action if no instant answer yet
+                ai_res.append({
+                    "id": "ai_searching",
+                    "name": f"Ask AI: '{search_term}'",
+                    "desc": "Bite Intelligence is searching the web for an answer...",
+                    "cat": "AI Brain",
+                    "icon": "bot",
+                    "action": "none",
+                    "score": 110
+                })
+
         # 9. Smart Alias Suggestions (Dynamic & Static)
         alias_matches = []
-        if query:
-            # Combine both alias stores
-            all_aliases = self.bite.user_data.get("aliases", {}).copy()
-            path_aliases = self.bite.user_data.get("path_aliases", {})
-            all_aliases.update(path_aliases)
+        if "@" in query:
+            # Get the word currently being typed starting with @
+            words = query.split()
+            current_tag = ""
+            for word in reversed(words):
+                if word.startswith("@"):
+                    current_tag = word
+                    break
             
-            clean_q = query.lstrip("@")
-            for alias_name, target_path in all_aliases.items():
-                clean_name = alias_name.lstrip("@")
-                if clean_name.lower().startswith(clean_q.lower()):
-                    display_name = f"@{clean_name}"
-                    alias_matches.append({
-                        "id": f"alias_hint_{clean_name}",
-                        "name": display_name,
-                        "desc": f"Smart Alias for {target_path}",
-                        "cat": "Aliases",
-                        "icon": "folder",
-                        "type": "term_autofill",
-                        "new_query": f"{display_name}\\",
-                        "score": 100,
-                        "learned": True
-                    })
+            if current_tag:
+                clean_q = current_tag.lstrip("@")
+                prefix = query[:query.rfind(current_tag)]
+                
+                # 9a. Path Aliases (Folders)
+                all_aliases = self.bite.user_data.get("aliases", {}).copy()
+                path_aliases = self.bite.user_data.get("path_aliases", {})
+                all_aliases.update(path_aliases)
+                
+                for alias_name, target_path in all_aliases.items():
+                    clean_name = alias_name.lstrip("@")
+                    if clean_name.lower().startswith(clean_q.lower()):
+                        display_name = f"@{clean_name}"
+                        alias_matches.append({
+                            "id": f"alias_hint_{clean_name}",
+                            "name": display_name,
+                            "desc": f"Smart Alias for {target_path}",
+                            "cat": "Aliases",
+                            "icon": "folder",
+                            "type": "term_autofill",
+                            "new_query": f"{prefix}{display_name}\\",
+                            "score": 100,
+                            "learned": True
+                        })
+
+                # 9b. Shortcut Aliases (App/Command triggers)
+                for sc in self.bite.user_data.get("shortcuts", []):
+                    sc_id = sc.get("id", "").lower()
+                    if sc_id.startswith(clean_q.lower()):
+                        display_name = f"@{sc_id}"
+                        alias_matches.append({
+                            "id": f"alias_sc_{sc_id}",
+                            "name": display_name,
+                            "desc": f"Trigger shortcut: {sc.get('name')}",
+                            "cat": "Aliases",
+                            "icon": sc.get("icon", "zap"),
+                            "type": "term_autofill",
+                            "new_query": f"{prefix}{display_name}",
+                            "score": 105, # Slightly higher than folders
+                            "learned": True
+                        })
+
+        # 9c. Git Repositories
+        git_matches = self._match_git_repos(query)
+
+        # 9d. Browser Bookmarks
+        bm_matches = self._match_bookmarks(query)
+
+        # 9e. IDE Recent Workspaces
+        ide_matches = self._match_ide_workspaces(query)
+
+        # 9f. Developer Package & Documentation Jumps
+        pkg_matches = self._match_package_jumps(query_raw)
+
+        # 9g. Environment Variables
+        env_matches = self._match_env_vars(query_raw)
 
         all_res = (
             math_results
+            + pkg_matches
+            + git_matches
+            + ide_matches
+            + bm_matches
+            + env_matches
             + registry_matches
             + app_matches
             + file_matches
@@ -266,6 +385,8 @@ class Searcher:
             + workflow_matches
             + plugin_results
             + alias_matches
+            + ai_res
+            + vault_matches
         )
 
         # Web Fallback
@@ -276,17 +397,49 @@ class Searcher:
                 for item in registry_matches
             )
             if not is_search_cmd:
+                # Dynamic Favicon for Web Fallback (Opt-in check)
+                use_favicons = self.bite.user_data.get("settings", {}).get("opt_in_favicons", False)
+                
+                google_icon = "globe"
+                if use_favicons:
+                    google_icon = f"https://www.google.com/s2/favicons?domain=google.com&sz=64"
+                
                 all_res.append(
                     {
                         "id": "web_search",
                         "name": f"Search Web for '{query}'",
                         "type": "search",
-                        "url": "https://google.com/search?q=",
+                        "url": f"https://google.com/search?q={requests.utils.quote(query)}",
                         "cat": "Fallback",
-                        "icon": "search",
+                        "icon": google_icon,
+                        "is_img": use_favicons,
                         "score": 85,
                     }
                 )
+
+        # 10. Global Search Providers (Only if no exact match)
+        if query and not has_exact and len(query) > 1:
+            providers = [
+                {"n": "YouTube", "u": "https://youtube.com/results?search_query=", "d": "youtube.com", "i": "youtube"},
+                {"n": "GitHub", "u": "https://github.com/search?q=", "d": "github.com", "i": "github"},
+                {"n": "Amazon", "u": "https://amazon.com/s?k=", "d": "amazon.com", "i": "shopping-cart"}
+            ]
+            use_favicons = self.bite.user_data.get("settings", {}).get("opt_in_favicons", False)
+            for p in providers:
+                icon = p["i"]
+                if use_favicons:
+                    icon = f"https://www.google.com/s2/favicons?domain={p['d']}&sz=64"
+                
+                all_res.append({
+                    "id": f"g_search_{p['d']}",
+                    "name": f"Search {p['n']} for '{query}'",
+                    "type": "search",
+                    "url": f"{p['u']}{requests.utils.quote(query)}",
+                    "cat": "Web Search",
+                    "icon": icon,
+                    "is_img": use_favicons,
+                    "score": 80
+                })
 
         pinned = [r for r in all_res if r.get("pinned")]
         others = [r for r in all_res if not r.get("pinned")]
@@ -304,12 +457,10 @@ class Searcher:
             others = recents + others
 
         # Custom Prefixes
-        is_wf_search = query.lower().startswith("wf:") or query.lower().startswith("workflow:")
-        if is_wf_search:
-            # Strip prefix
-            prefix = "wf:" if query.lower().startswith("wf:") else "workflow:"
-            wf_query = query[len(prefix):].strip().lower()
-            
+        q_lower = query.lower()
+        if q_lower.startswith("wf:") or q_lower.startswith("workflow:"):
+            prefix = "wf:" if q_lower.startswith("wf:") else "workflow:"
+            wf_query = q_lower[len(prefix):].strip()
             wf_matches = []
             for wf in self.bite.workflows:
                 if not wf_query or wf_query in wf["name"].lower():
@@ -317,6 +468,27 @@ class Searcher:
                     it["score"] = 100 if wf_query and wf["name"].lower().startswith(wf_query) else 50
                     wf_matches.append(it)
             return sorted(wf_matches, key=lambda x: -x["score"])
+
+        if q_lower.startswith("repo:") or q_lower.startswith("git:"):
+            prefix = "repo:" if q_lower.startswith("repo:") else "git:"
+            repo_q = q_lower[len(prefix):].strip()
+            return self.bite.git.search_repos(repo_q)
+
+        if q_lower.startswith("bm:") or q_lower.startswith("bookmark:") or q_lower.startswith("b:"):
+            prefix = "bookmark:" if q_lower.startswith("bookmark:") else ("bm:" if q_lower.startswith("bm:") else "b:")
+            bm_q = q_lower[len(prefix):].strip()
+            return self.bite.bookmarks.search_bookmarks(bm_q)
+
+        # Direct Browser Bookmark prefixes (e.g., brave:, chrome:, edge:)
+        for br in ["brave", "chrome", "edge", "arc", "vivaldi"]:
+            if q_lower.startswith(f"{br}:"):
+                target = q_lower[len(br) + 1:].strip()
+                return self.bite.bookmarks.search_bookmarks(target, browser_filter=br)
+
+        if q_lower.startswith("code:") or q_lower.startswith("cursor:") or q_lower.startswith("ide:"):
+            prefix = "cursor:" if q_lower.startswith("cursor:") else ("code:" if q_lower.startswith("code:") else "ide:")
+            ide_q = q_lower[len(prefix):].strip()
+            return self.bite.ide.search_workspaces(ide_q)
 
         # Mnemonic Boosting (Quicksilver style)
         q_clean = query.lower().strip()
@@ -355,18 +527,23 @@ class Searcher:
         cat_map = {
             "Aliases": -100,
             "Pinned Favorites": -90,
-            "Recents": -80,    # Recents should be high priority
+            "Recents": -80,
+            "Dev Packages": -20,
+            "Git Repositories": -15,
+            "IDE Workspaces": -12,
             "Workflows": -10,
-            "Files": 0,        # Files should be ABOVE generic apps/tools when searching paths
+            "Files": 0,
             "Productivity": 5,
             "Calc": 6,
             "Apps": 10,
+            "Environment": 15,
             "System": 20,
             "Custom": 25,
             "Tools": 30,
+            "Bookmarks": 35,
             "Search": 40,
             "Web": 45,
-            "Fallback": 100,   # Google Fallback always at the bottom
+            "Fallback": 100,
             "Help": 200,
             "Clipboard": 210,
         }
@@ -696,6 +873,109 @@ class Searcher:
             })
 
         return results
+
+    def _match_git_repos(self, query: str) -> List[Dict]:
+        if not query:
+            return []
+        q = query.lower().strip()
+        if q.startswith("repo:") or q.startswith("git:"):
+            prefix = "repo:" if q.startswith("repo:") else "git:"
+            target = q[len(prefix):].strip()
+            return self.bite.git.search_repos(target)
+        
+        # General query search if length >= 2
+        if len(q) >= 2:
+            repos = self.bite.git.search_repos(q)
+            return [r for r in repos if r.get("score", 0) >= 80]
+        return []
+
+    def _match_bookmarks(self, query: str) -> List[Dict]:
+        if not query:
+            return []
+        q = query.lower().strip()
+        if q.startswith("bm:") or q.startswith("b:") or q.startswith("bookmark:"):
+            prefix = "bookmark:" if q.startswith("bookmark:") else ("bm:" if q.startswith("bm:") else "b:")
+            target = q[len(prefix):].strip()
+            return self.bite.bookmarks.search_bookmarks(target)
+        
+        if len(q) >= 3:
+            bms = self.bite.bookmarks.search_bookmarks(q)
+            return [b for b in bms if b.get("score", 0) >= 85]
+        return []
+
+    def _match_ide_workspaces(self, query: str) -> List[Dict]:
+        if not query:
+            return []
+        q = query.lower().strip()
+        if q.startswith("code:") or q.startswith("cursor:") or q.startswith("ide:"):
+            prefix = "cursor:" if q.startswith("cursor:") else ("code:" if q.startswith("code:") else "ide:")
+            target = q[len(prefix):].strip()
+            return self.bite.ide.search_workspaces(target)
+        return []
+
+    def _match_package_jumps(self, query: str) -> List[Dict]:
+        if not query:
+            return []
+        q = query.strip()
+        results = []
+
+        patterns = [
+            (r"^(?:npm:\s*|npm\s+)([a-zA-Z0-9\-_@\/]+)$", "npm", "https://www.npmjs.com/package/{}", "NPM Package", "box"),
+            (r"^(?:pypi:\s*|pip\s+)([a-zA-Z0-9\-_]+)$", "PyPI", "https://pypi.org/project/{}/", "PyPI Python Package", "package"),
+            (r"^(?:crates:\s*|cargo\s+)([a-zA-Z0-9\-_]+)$", "crates.io", "https://crates.io/crates/{}", "Rust Crate", "box"),
+            (r"^(?:mdn:\s*|mdn\s+)(.+)$", "MDN Web Docs", "https://developer.mozilla.org/en-US/search?q={}", "MDN Web Documentation", "book-open"),
+            (r"^(?:gh:\s*|github\s+)([a-zA-Z0-9\-_.\/]+)$", "GitHub", "https://github.com/{}", "GitHub Repository / User", "github"),
+        ]
+
+        for pat, provider, url_fmt, desc, icon in patterns:
+            m = re.match(pat, q, re.IGNORECASE)
+            if m:
+                target = m.group(1).strip()
+                dest_url = url_fmt.format(target)
+                results.append({
+                    "id": f"pkg_{provider}_{target}",
+                    "name": f"{provider}: {target}",
+                    "desc": f"Open {desc} ({dest_url})",
+                    "url": dest_url,
+                    "cat": "Dev Packages",
+                    "icon": icon,
+                    "type": "search",
+                    "action": "open_url",
+                    "score": 120,
+                    "learned": True,
+                })
+        return results
+
+    def _match_env_vars(self, query: str) -> List[Dict]:
+        if not query:
+            return []
+        q = query.strip()
+        results = []
+
+        is_env_query = q.startswith("$") or q.lower().startswith("env ")
+        if is_env_query:
+            target = q[1:].strip() if q.startswith("$") else q[4:].strip()
+            target_upper = target.upper()
+
+            for k, v in os.environ.items():
+                if not target or target_upper in k.upper():
+                    score = 100 if k.upper() == target_upper else (85 if k.upper().startswith(target_upper) else 60)
+                    summary = v[:60] + "..." if len(v) > 60 else v
+                    extra = f" ({len(v.split(os.pathsep))} paths)" if k.upper() == "PATH" else ""
+
+                    results.append({
+                        "id": f"env_{k}",
+                        "name": f"${k}",
+                        "desc": f"Env Variable: {summary}{extra}",
+                        "content": v,
+                        "cat": "Environment",
+                        "icon": "terminal",
+                        "action": "paste",
+                        "score": score,
+                    })
+
+            results.sort(key=lambda x: -x["score"])
+        return results[:15]
 
     def _match_apps(self, query, pinned_ids, existing_names):
         matches = []
