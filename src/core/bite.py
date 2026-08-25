@@ -235,6 +235,14 @@ class Bite:
                 "icon": "settings",
             },
             {
+                "id": "setup",
+                "name": "Setup & Onboarding Wizard",
+                "action": "open_onboarding",
+                "desc": "Configure Dev Environment & Preferences",
+                "cat": "Help",
+                "icon": "zap",
+            },
+            {
                 "id": "help",
                 "name": "How to use Bite?",
                 "action": "help",
@@ -407,6 +415,7 @@ class Bite:
                 "opt_in_ml": False,
                 "opt_in_ai": False,
                 "opt_in_favicons": False,
+                "onboarding_completed": False,
                 "excluded_folders": [
                     "node_modules", ".git", ".vscode", "venv", "env", "__pycache__", "dist", "build"
                 ]

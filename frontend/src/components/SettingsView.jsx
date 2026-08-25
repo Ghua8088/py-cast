@@ -73,7 +73,7 @@ function UpdaterSection() {
   )
 }
 
-export default function SettingsView({ onClose, isResizing }) {
+export default function SettingsView({ onClose, isResizing, onOpenOnboarding }) {
   const [shortcuts, setShortcuts] = useState([])
   const [snippets, setSnippets] = useState([])
   const [settings, setSettings] = useState({ theme_color: '#5e5ce6', start_on_boot: false, excluded_folders: [], hide_footer: false })
@@ -684,6 +684,22 @@ export default function SettingsView({ onClose, isResizing }) {
             <VaultSection />
 
             <UpdaterSection />
+
+            {/* Setup & Onboarding Wizard */}
+            {onOpenOnboarding && (
+              <div className="settings-section" style={{ borderTop: '1px solid var(--border)', paddingTop: '16px', marginTop: '16px' }}>
+                <div className="section-title">Setup & Onboarding</div>
+                <div className="st-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 0' }}>
+                  <div>
+                    <span style={{ fontSize: '13px', display: 'block', fontWeight: 500 }}>Re-run Developer Setup</span>
+                    <span className="dim" style={{ fontSize: '11px' }}>Walk through the initial onboarding flow to reconfigure themes, IDE, Git roots, and privacy.</span>
+                  </div>
+                  <button className="action-button-secondary" onClick={onOpenOnboarding}>
+                    <Zap size={12} /> Launch Setup
+                  </button>
+                </div>
+              </div>
+            )}
           </>
         )}
       </div>

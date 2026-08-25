@@ -9,9 +9,10 @@ import SettingsView from './components/SettingsView'
 import ScratchpadScreen from './components/ScratchpadScreen'
 import PythonLabScreen from './components/PythonLabScreen'
 import ActionMenu from './components/ActionMenu'
+import OnboardingView from './components/OnboardingView'
 
 function App() {
-  const [view, setView] = useState('search') // 'search' | 'settings' | 'scratchpad'
+  const [view, setView] = useState('search') // 'search' | 'settings' | 'scratchpad' | 'python_lab' | 'onboarding'
   const [themeColor, setThemeColor] = useState('#5e5ce6')
   const [zenMode, setZenMode] = useState(false)
   const [hideFooter, setHideFooter] = useState(false) // Deprecated, matching zenMode now for compatibility
@@ -71,6 +72,11 @@ function App() {
           document.documentElement.style.setProperty('--accent', color);
           document.documentElement.style.setProperty('--accent-glow', color + '59');
         }
+      }
+
+      // Check First-Time Install Onboarding
+      if (s.onboarding_completed === false) {
+        setView('onboarding');
       }
 
       // Apply Zen Mode & Footer visibility
@@ -137,8 +143,8 @@ function App() {
     const isZenState = zenMode && query.trim().length === 0;
 
     let targetHeight = 450;
-    if (view === 'settings' || view === 'scratchpad' || view === 'python_lab') {
-      targetHeight = 550;
+    if (view === 'settings' || view === 'scratchpad' || view === 'python_lab' || view === 'onboarding') {
+      targetHeight = 520;
     } else if (isSearch && isZenState) {
       targetHeight = 62;
     }
@@ -172,8 +178,8 @@ function App() {
   const isSearch = view === 'search';
   const isZenState = zenMode && query.trim().length === 0;
   let targetHeightRender = 450;
-  if (view === 'settings' || view === 'scratchpad' || view === 'python_lab') {
-    targetHeightRender = 550;
+  if (view === 'settings' || view === 'scratchpad' || view === 'python_lab' || view === 'onboarding') {
+    targetHeightRender = 520;
   } else if (isSearch && isZenState) {
     targetHeightRender = 62;
   }
@@ -303,6 +309,10 @@ function App() {
       setView('settings');
       setShowActionMenu(false);
       setQuery('');
+    } else if (item.action === 'open_onboarding') {
+      setView('onboarding');
+      setShowActionMenu(false);
+      setQuery('');
     } else if (item.action === 'open_scratch') {
       setView('scratchpad');
       setShowActionMenu(false);
@@ -381,7 +391,17 @@ function App() {
         />
       )}
 
-      {view === 'settings' && <SettingsView onClose={() => setView('search')} isResizing={effectivelyResizing} />}
+      {view === 'onboarding' && (
+        <OnboardingView
+          onComplete={() => {
+            setView('search');
+            syncSettings();
+          }}
+          isResizing={effectivelyResizing}
+        />
+      )}
+
+      {view === 'settings' && <SettingsView onClose={() => setView('search')} isResizing={effectivelyResizing} onOpenOnboarding={() => setView('onboarding')} />}
 
       {view === 'scratchpad' && (
         <ScratchpadScreen

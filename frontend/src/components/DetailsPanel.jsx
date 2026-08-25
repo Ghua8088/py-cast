@@ -1,14 +1,19 @@
+import { useState } from 'react'
 import { ItemIcon } from './Icons'
-import { Zap, Clipboard, Share2, ExternalLink, FileText, Terminal, Info, Globe, Shield, Activity, Database } from 'lucide-react'
+import { Zap, Clipboard, Share2, ExternalLink, FileText, Terminal, Info, Globe, Shield, Activity, Database, Check, GitBranch } from 'lucide-react'
 import pytron from 'pytron-client'
 
 export default function DetailsPanel({ item, onExecute }) {
+  const [copied, setCopied] = useState(false);
+
   if (!item) return null;
 
   const copyPath = () => {
     if (item.path) {
       pytron.copy_to_clipboard(item.path);
-      pytron.send_notification("Copied", "Path saved to clipboard");
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+      pytron.send_notification("Copied", "Path copied to clipboard");
     }
   };
 
@@ -23,106 +28,123 @@ export default function DetailsPanel({ item, onExecute }) {
         });
       } else {
         pytron.copy_to_clipboard(textToShare);
-        pytron.send_notification("Copied to Share", "Item content copied to clipboard!");
+        pytron.send_notification("Shared", "Copied to clipboard");
       }
     } catch (err) {
-      // User cancelled share or failed
+      // ignore
     }
   };
 
   return (
     <div className="ray-details-panel">
-      <div className="details-header">
-        <div className="details-icon-large">
+      {/* Hero Header */}
+      <div className="details-hero">
+        <div className="details-icon-wrapper">
           <ItemIcon item={item} large={true} />
         </div>
-        <div className="details-title">{item.name}</div>
-        <div className="details-desc-hero">{item.desc}</div>
+        <div className="details-hero-text">
+          <h2 className="details-title">{item.name}</h2>
+          <div className="details-tags">
+            {item.cat && <span className="details-pill">{item.cat}</span>}
+            {item.branch && (
+              <span className="details-pill branch-pill">
+                <GitBranch size={11} />
+                {item.branch}
+              </span>
+            )}
+            {item.is_dirty !== undefined && (
+              <span className={`details-pill status-pill ${item.is_dirty ? 'dirty' : 'clean'}`}>
+                {item.is_dirty ? 'Modified' : 'Clean'}
+              </span>
+            )}
+          </div>
+        </div>
       </div>
 
+      {/* AI Summary / Special Brain Block */}
       {item.cat === 'AI Brain' && item.content && (
-        <div className="details-section ai-summary-section">
-          <div className="details-section-title">Bite Intelligence Analysis</div>
-          <div className="ai-content-body">
-            {item.content}
+        <div className="details-card ai-card">
+          <div className="details-card-header">
+            <Zap size={13} className="card-header-icon" />
+            <span>Intelligence Summary</span>
           </div>
+          <div className="ai-content-body">{item.content}</div>
         </div>
       )}
 
-      <div className="details-section">
-        <div className="details-section-title">Key Actions</div>
-        <div className="details-action-grid">
-          <div className="details-action-btn primary" onClick={() => onExecute && onExecute(item)}>
-            <Zap size={18} color="var(--accent)" />
-            <span>Execute</span>
-          </div>
+      {/* Primary Actions */}
+      <div className="details-card actions-card">
+        <div className="details-card-header">
+          <span>Quick Actions</span>
+        </div>
+        <div className="details-action-row">
+          <button className="action-pill primary" onClick={() => onExecute && onExecute(item)}>
+            <Zap size={14} />
+            <span>Open</span>
+          </button>
           {item.path && (
-            <div className="details-action-btn" onClick={copyPath}>
-              <Clipboard size={18} />
-              <span>Copy Path</span>
-            </div>
+            <button className={`action-pill ${copied ? 'success' : ''}`} onClick={copyPath}>
+              {copied ? <Check size={14} /> : <Clipboard size={14} />}
+              <span>{copied ? 'Copied' : 'Copy Path'}</span>
+            </button>
           )}
-          <div className="details-action-btn" onClick={handleShare}>
-            <Share2 size={18} />
+          <button className="action-pill" onClick={handleShare}>
+            <Share2 size={14} />
             <span>Share</span>
-          </div>
+          </button>
         </div>
       </div>
 
-      <div className="details-section">
-        <div className="details-section-title">Context & Info</div>
-        <div className="meta-list">
+      {/* Metadata & Context */}
+      <div className="details-card meta-card">
+        <div className="details-card-header">
+          <span>Information</span>
+        </div>
+        <div className="meta-entries">
           {item.path && (
-            <div className="meta-row" onClick={copyPath}>
-              <div className="meta-item-header">
-                <Terminal size={14} className="meta-icon" />
-                <span className="meta-label">Path</span>
+            <div className="meta-entry" onClick={copyPath} title="Click to copy path">
+              <div className="meta-entry-label">
+                <Terminal size={12} />
+                <span>Path</span>
               </div>
-              <span className="meta-value truncate-path" title={item.path}>{item.path}</span>
+              <div className="meta-entry-value">{item.path}</div>
             </div>
           )}
 
           {item.url && (
-            <div className="meta-row" onClick={() => onExecute(item)}>
-              <div className="meta-item-header">
-                <Globe size={14} className="meta-icon" />
-                <span className="meta-label">Target URL</span>
+            <div className="meta-entry" onClick={() => onExecute && onExecute(item)} title="Click to open URL">
+              <div className="meta-entry-label">
+                <Globe size={12} />
+                <span>URL</span>
               </div>
-              <span className="meta-value truncate-url" title={item.url}>{item.url}</span>
+              <div className="meta-entry-value">{item.url}</div>
             </div>
           )}
 
-          <div className="meta-grid">
-            {item.cat && (
-              <div className="meta-grid-item">
-                <Database size={12} />
-                <span>{item.cat}</span>
-              </div>
-            )}
-            {item.type && (
-              <div className="meta-grid-item">
+          {item.desc && !item.path && !item.url && (
+            <div className="meta-entry">
+              <div className="meta-entry-label">
                 <Info size={12} />
-                <span>{item.type.toUpperCase()}</span>
+                <span>Description</span>
               </div>
-            )}
-          </div>
+              <div className="meta-entry-value">{item.desc}</div>
+            </div>
+          )}
 
           {item.content && (
-            <div className="meta-row content-preview-box">
-              <div className="meta-item-header">
-                <FileText size={14} className="meta-icon" />
-                <span className="meta-label">Snippet Preview</span>
+            <div className="snippet-preview-container">
+              <div className="meta-entry-label">
+                <FileText size={12} />
+                <span>Content</span>
               </div>
-              <div className="details-content-preview">
-                {item.content}
-              </div>
+              <pre className="snippet-code-block">{item.content}</pre>
             </div>
           )}
 
-          {!item.content && !item.path && !item.url && (
-            <div className="details-empty-preview">
-              <Shield size={24} opacity={0.2} />
-              <p>No additional metadata available for this item.</p>
+          {!item.content && !item.path && !item.url && !item.desc && (
+            <div className="meta-empty">
+              <Shield size={18} opacity={0.3} />
+              <span>Ready to execute</span>
             </div>
           )}
         </div>

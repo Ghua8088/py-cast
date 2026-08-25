@@ -4,7 +4,8 @@ import {
   Youtube, Github, Lock, Moon, Trash2, HelpCircle,
   Code, Globe, Gamepad2, File, Folder, Clipboard,
   LayoutGrid, Settings as SettingsIcon, Link as LinkIcon,
-  Volume1, Volume2, VolumeX, Book, Bot, Cpu, Zap, Cloud, Hash, Star
+  Volume1, Volume2, VolumeX, Book, Bot, Cpu, Zap, Cloud, Hash, Star,
+  GitBranch, Sparkles, Command, CheckSquare, Compass, Shield
 } from 'lucide-react'
 
 import { getIconForFile, getIconForFolder } from 'vscode-icons-js'
@@ -15,6 +16,14 @@ export const LucideIcon = ({ item, size = 20 }) => {
   const id = item.id?.toLowerCase() || '';
   const cat = item.cat?.toLowerCase() || '';
   const isDir = item.is_dir || (item.icon && item.icon.includes('folder'));
+
+  // Git Repositories
+  if (item.type === 'git_repo' || cat === 'git repositories' || id.startsWith('repo_')) {
+    if (item.icon === 'github' || item.github_url || id.includes('github')) {
+      return <Github size={size} />;
+    }
+    return <GitBranch size={size} />;
+  }
 
   // Static App Icons
   if (id === 'calc' || id === 'calc_res') return <Calculator size={size} />;
@@ -27,7 +36,7 @@ export const LucideIcon = ({ item, size = 20 }) => {
   if (id === 'sleep') return <Moon size={size} />;
   if (id === 'google' || id === 'trans' || id === 'gemini') return <Globe size={size} />;
   if (id === 'yt') return <Youtube size={size} />;
-  if (id === 'gh') return <Github size={size} />;
+  if (id === 'gh' || item.icon === 'github') return <Github size={size} />;
   if (id === 'chatgpt' || id === 'bot') return <Bot size={size} />;
   if (id === 'clean' || id === 'claude') return <Zap size={size} />;
   if (id === 'empty_trash') return <Trash2 size={size} />;
@@ -39,7 +48,7 @@ export const LucideIcon = ({ item, size = 20 }) => {
   if (id === 'vol_down') return <Volume1 size={size} />;
   if (id === 'mute') return <VolumeX size={size} />;
   if (id === 'grok' || id === 'perplexity') return <Cpu size={size} />;
-  if (id === 'shield-check') return <Star size={size} />; // For secure vault check
+  if (id === 'shield-check') return <Shield size={size} />;
   
   // Generic Fallbacks based on item.icon string (from backend)
   if (item.icon === 'layers') return <LayoutGrid size={size} />;
@@ -48,6 +57,7 @@ export const LucideIcon = ({ item, size = 20 }) => {
   if (item.icon === 'zap') return <Zap size={size} />;
   if (item.icon === 'folder') return <Folder size={size} />;
   if (item.icon === 'file-text') return <FileText size={size} />;
+  if (item.icon === 'git' || item.icon === 'git-branch') return <GitBranch size={size} />;
   
   if (cat === 'calc') return <Hash size={size} />;
   if (cat === 'clipboard') return <Clipboard size={size} />;

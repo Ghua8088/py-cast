@@ -12,7 +12,7 @@
     "transparent": false,
     "always_on_top": true,
     "start_hidden": true,
-    "version": "0.3.6",
+    "version": "0.4.0",
     "frameless": true,
     "debug": true,
     "default_context_menu": false,

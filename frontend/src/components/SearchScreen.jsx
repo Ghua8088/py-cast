@@ -24,14 +24,25 @@ function SysStats({ showStats }) {
   if (!showStats) return null;
 
   return (
-    <div className="ray-stats-container">
+    <div className="ray-stats-capsule">
       {sysInfo.battery !== undefined && sysInfo.battery !== null && (
-        <div className="stat-pill"><span className="stat-label">BAT</span><span className="stat-value">{sysInfo.battery}%</span></div>
+        <div className="stat-node">
+          <span className="stat-tag">BAT</span>
+          <span className="stat-txt">{sysInfo.battery}%</span>
+        </div>
       )}
-      <div className="stat-pill"><span className="stat-label">CPU</span><span className="stat-value">{sysInfo.cpu}%</span></div>
-      <div className="stat-pill"><span className="stat-label">RAM</span><span className="stat-value">{sysInfo.mem}%</span></div>
+      <div className="stat-node">
+        <span className="stat-tag">CPU</span>
+        <span className="stat-txt">{sysInfo.cpu}%</span>
+      </div>
+      <div className="stat-node">
+        <span className="stat-tag">RAM</span>
+        <span className="stat-txt">{sysInfo.mem}%</span>
+      </div>
       {sysInfo.time && (
-        <div className="stat-pill"><span className="stat-label">TIME</span><span className="stat-value">{sysInfo.time}</span></div>
+        <div className="stat-node time-node">
+          <span className="stat-txt">{sysInfo.time}</span>
+        </div>
       )}
     </div>
   );
