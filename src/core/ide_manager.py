@@ -51,6 +51,27 @@ class IDEManager:
 
         return results
 
+    def get_ide_display_name(self) -> str:
+        """Returns friendly human-readable name of the user's preferred IDE."""
+        user_ide = self.bite.user_data.get("settings", {}).get("preferred_ide", "").strip()
+        if not user_ide:
+            return "Editor"
+        mapping = {
+            "cursor": "Cursor",
+            "code": "VS Code",
+            "code-insiders": "VS Code Insiders",
+            "codium": "VSCodium",
+            "nvim": "Neovim",
+            "pycharm": "PyCharm",
+        }
+        if user_ide in mapping:
+            return mapping[user_ide]
+        if os.path.isfile(user_ide):
+            base = os.path.basename(user_ide)
+            name, _ = os.path.splitext(base)
+            return name.capitalize()
+        return user_ide.capitalize()
+
     def get_recent_workspaces(self) -> List[Dict]:
         workspaces = []
         seen_paths = set()
@@ -97,6 +118,7 @@ class IDEManager:
                                 "icon": "code",
                                 "type": "ide_workspace",
                                 "action": "open_ide",
+                                "is_dir": True,
                                 "editor": editor_cmd,
                             })
             except Exception as e:
@@ -105,18 +127,82 @@ class IDEManager:
         return workspaces
 
     def search_workspaces(self, query: str) -> List[Dict]:
-        items = self.get_recent_workspaces()
-        if not query:
-            return [{**w, "score": 100} for w in items[:25]]
-
-        q = query.lower().strip()
+        ide_name = self.get_ide_display_name()
+        q = (query or "").lower().strip()
         matches = []
-        for w in items:
+        seen_paths = set()
+
+        # 1. Resolve Path Aliases directly for ide:<alias> (e.g., ide:@project or ide:downloads)
+        raw_aliases = self.bite.user_data.get("aliases", {}).copy()
+        path_aliases = self.bite.user_data.get("path_aliases", {})
+        raw_aliases.update(path_aliases)
+
+        clean_q = q.lstrip("@")
+        for alias_key, target_path in raw_aliases.items():
+            clean_alias = alias_key.lstrip("@")
+            alias_lower = clean_alias.lower()
+            
+            # Check matching
+            score = 0
+            if not clean_q:
+                score = 95
+            elif alias_lower == clean_q:
+                score = 110
+            elif alias_lower.startswith(clean_q):
+                score = 100
+            elif clean_q in alias_lower or clean_q in str(target_path).lower():
+                score = 80
+
+            if score > 0 and os.path.exists(str(target_path)):
+                norm_path = os.path.normpath(str(target_path))
+                seen_paths.add(norm_path.lower())
+                matches.append({
+                    "id": f"ide_alias_{clean_alias}",
+                    "name": f"Open @{clean_alias} in {ide_name}",
+                    "desc": f"Launch {ide_name} in {norm_path}",
+                    "path": norm_path,
+                    "cat": "Aliases",
+                    "icon": "code",
+                    "type": "ide_workspace",
+                    "action": "open_ide",
+                    "is_dir": True,
+                    "score": score
+                })
+
+        # 2. Check if the query itself is a direct path on disk (e.g., ide:D:\my-folder or ide:.\src)
+        if q:
+            resolved_direct = self.bite.resolve_aliases(query.strip())
+            if os.path.exists(resolved_direct) and os.path.isdir(resolved_direct):
+                norm_direct = os.path.normpath(resolved_direct)
+                if norm_direct.lower() not in seen_paths:
+                    seen_paths.add(norm_direct.lower())
+                    matches.append({
+                        "id": f"ide_direct_{hash(norm_direct)}",
+                        "name": f"Open folder in {ide_name}",
+                        "desc": f"Launch {ide_name} in {norm_direct}",
+                        "path": norm_direct,
+                        "cat": "Developer",
+                        "icon": "code",
+                        "type": "ide_workspace",
+                        "action": "open_ide",
+                        "is_dir": True,
+                        "score": 105
+                    })
+
+        # 3. Match recent IDE workspaces from state.vscdb
+        recent_items = self.get_recent_workspaces()
+        for w in recent_items:
+            norm_w_path = os.path.normpath(w["path"]).lower()
+            if norm_w_path in seen_paths:
+                continue
+
             name_lower = w["name"].lower()
             path_lower = w["path"].lower()
 
             score = 0
-            if name_lower == q:
+            if not q:
+                score = 85
+            elif name_lower == q:
                 score = 100
             elif name_lower.startswith(q):
                 score = 90
@@ -131,4 +217,4 @@ class IDEManager:
                 matches.append(it)
 
         matches.sort(key=lambda x: -x["score"])
-        return matches[:20]
+        return matches[:25]

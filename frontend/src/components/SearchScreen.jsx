@@ -3,6 +3,7 @@ import { Search, Star, Copy, CornerDownLeft, Settings, Globe, Github } from 'luc
 import { ItemIcon } from './Icons'
 import DetailsPanel from './DetailsPanel'
 import pytron from 'pytron-client'
+import biteWordmark from '../assets/bite-wordmark.png'
 
 function SysStats({ showStats }) {
   const [sysInfo, setSysInfo] = useState({ cpu: 0, mem: 0 });
@@ -269,7 +270,14 @@ export default function SearchScreen({
 
           <div className="ray-footer">
             <div className="footer-left">
-              <span className="brand">Bite</span>
+              <span
+                className="brand-logo"
+                style={{
+                  WebkitMaskImage: `url(${biteWordmark})`,
+                  maskImage: `url(${biteWordmark})`
+                }}
+                title="Bite"
+              />
             </div>
             <div className="ray-footer-right">
               {results[selectedIndex]?.url && <div className="hint"><span className="kbd">↵</span> Open Browser</div>}

@@ -171,6 +171,7 @@ declare module 'pytron-client' {
     vault_delete(service: any, username: any): Promise<any>;
     check_update(): Promise<any>;
     install_update(info: any): Promise<any>;
+    set_global_hotkey(new_combo: string): Promise<any>;
     set_window_size(w: any, h: any): Promise<any>;
     create_workflow(n: any): Promise<any>;
     get_settings(): Promise<any>;

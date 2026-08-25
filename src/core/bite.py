@@ -295,6 +295,15 @@ class Bite:
                 "icon": "rocket",
             },
             {
+                "id": "open_ide_launcher",
+                "name": "Open in Code Editor (ide:)",
+                "desc": "Launch preferred editor on an alias or workspace (e.g. ide:@project)",
+                "cat": "Developer",
+                "icon": "code",
+                "type": "term_autofill",
+                "new_query": "ide:",
+            },
+            {
                 "id": "perplexity",
                 "name": "Open Perplexity",
                 "type": "search",
@@ -408,7 +417,8 @@ class Bite:
             "clipboard_history": [],
             "scratchpad": "Welcome to your scratchpad! Type here to keep notes...",
             "settings": {
-                "theme_color": "#5e5ce6",
+                "theme_color": "#bfa5ff",
+                "global_hotkey": "Alt+B",
                 "start_on_boot": False,
                 "hide_footer": False,
                 "opt_in_clipboard": False,
@@ -784,6 +794,14 @@ class Bite:
     def get_user_shortcuts(self):
         return self.user_data.get("shortcuts", [])
 
+    def get_shortcuts(self):
+        return self.get_user_shortcuts()
+
+    def update_shortcuts(self, shortcuts_list):
+        self.user_data["shortcuts"] = shortcuts_list
+        self._save_config()
+        return self.user_data["shortcuts"]
+
     def add_snippet(self, n, c):
         self.user_data["snippets"].append(
             {
@@ -804,6 +822,14 @@ class Bite:
 
     def get_user_snippets(self):
         return self.user_data.get("snippets", [])
+
+    def get_snippets(self):
+        return self.get_user_snippets()
+
+    def update_snippets(self, snippets_list):
+        self.user_data["snippets"] = snippets_list
+        self._save_config()
+        return self.user_data["snippets"]
 
     def add_path_alias(self, k, p):
         if "path_aliases" not in self.user_data: self.user_data["path_aliases"] = {}

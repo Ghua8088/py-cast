@@ -13,7 +13,7 @@ import OnboardingView from './components/OnboardingView'
 
 function App() {
   const [view, setView] = useState('search') // 'search' | 'settings' | 'scratchpad' | 'python_lab' | 'onboarding'
-  const [themeColor, setThemeColor] = useState('#5e5ce6')
+  const [themeColor, setThemeColor] = useState('#bfa5ff')
   const [zenMode, setZenMode] = useState(false)
   const [hideFooter, setHideFooter] = useState(false) // Deprecated, matching zenMode now for compatibility
   const [query, setQuery] = useState('')

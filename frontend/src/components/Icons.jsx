@@ -11,15 +11,17 @@ import {
 import { getIconForFile, getIconForFolder } from 'vscode-icons-js'
 import { FileIcon, defaultStyles } from 'react-file-icon'
 
-export const LucideIcon = ({ item, size = 20 }) => {
-  const name = item.name || '';
-  const id = item.id?.toLowerCase() || '';
-  const cat = item.cat?.toLowerCase() || '';
-  const isDir = item.is_dir || (item.icon && item.icon.includes('folder'));
+export const LucideIcon = ({ item, icon, size = 20 }) => {
+  const safeItem = typeof item === 'object' && item !== null ? item : {};
+  const iconStr = typeof item === 'string' ? item : (icon || safeItem.icon || '');
+  const name = safeItem.name || '';
+  const id = safeItem.id?.toLowerCase() || '';
+  const cat = safeItem.cat?.toLowerCase() || '';
+  const isDir = safeItem.is_dir || (iconStr && iconStr.includes('folder'));
 
   // Git Repositories
-  if (item.type === 'git_repo' || cat === 'git repositories' || id.startsWith('repo_')) {
-    if (item.icon === 'github' || item.github_url || id.includes('github')) {
+  if (safeItem.type === 'git_repo' || cat === 'git repositories' || id.startsWith('repo_')) {
+    if (iconStr === 'github' || safeItem.github_url || id.includes('github')) {
       return <Github size={size} />;
     }
     return <GitBranch size={size} />;
@@ -36,7 +38,7 @@ export const LucideIcon = ({ item, size = 20 }) => {
   if (id === 'sleep') return <Moon size={size} />;
   if (id === 'google' || id === 'trans' || id === 'gemini') return <Globe size={size} />;
   if (id === 'yt') return <Youtube size={size} />;
-  if (id === 'gh' || item.icon === 'github') return <Github size={size} />;
+  if (id === 'gh' || iconStr === 'github') return <Github size={size} />;
   if (id === 'chatgpt' || id === 'bot') return <Bot size={size} />;
   if (id === 'clean' || id === 'claude') return <Zap size={size} />;
   if (id === 'empty_trash') return <Trash2 size={size} />;
@@ -50,25 +52,27 @@ export const LucideIcon = ({ item, size = 20 }) => {
   if (id === 'grok' || id === 'perplexity') return <Cpu size={size} />;
   if (id === 'shield-check') return <Shield size={size} />;
   
-  // Generic Fallbacks based on item.icon string (from backend)
-  if (item.icon === 'layers') return <LayoutGrid size={size} />;
-  if (item.icon === 'globe') return <Globe size={size} />;
-  if (item.icon === 'terminal') return <Terminal size={size} />;
-  if (item.icon === 'zap') return <Zap size={size} />;
-  if (item.icon === 'folder') return <Folder size={size} />;
-  if (item.icon === 'file-text') return <FileText size={size} />;
-  if (item.icon === 'git' || item.icon === 'git-branch') return <GitBranch size={size} />;
+  // Generic Fallbacks based on icon string
+  if (iconStr === 'layers') return <LayoutGrid size={size} />;
+  if (iconStr === 'globe') return <Globe size={size} />;
+  if (iconStr === 'terminal') return <Terminal size={size} />;
+  if (iconStr === 'zap') return <Zap size={size} />;
+  if (iconStr === 'folder') return <Folder size={size} />;
+  if (iconStr === 'file-text') return <FileText size={size} />;
+  if (iconStr === 'scissors') return <Scissors size={size} />;
+  if (iconStr === 'code') return <Code size={size} />;
+  if (iconStr === 'git' || iconStr === 'git-branch') return <GitBranch size={size} />;
   
   if (cat === 'calc') return <Hash size={size} />;
   if (cat === 'clipboard') return <Clipboard size={size} />;
 
   // 1. High-Performance File Icons (react-file-icon)
-  if ((cat === 'files' || cat === 'terminal' || item.path) && !isDir) {
+  if ((cat === 'files' || cat === 'terminal' || safeItem.path) && !isDir) {
     const parts = name.split('.');
     const extension = parts.length > 1 ? parts.pop().toLowerCase() : '';
     
     // Check if we have a native OS icon already loaded 
-    if (!item.icon?.startsWith('data:image')) {
+    if (!safeItem.icon?.startsWith('data:image')) {
       const styles = defaultStyles[extension] || defaultStyles.txt || {};
       return (
         <div style={{ width: size, height: size, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -85,19 +89,17 @@ export const LucideIcon = ({ item, size = 20 }) => {
   }
 
   // 2. Professional OS-Native Icons (Fallback/Override for EXEs/Folders)
-  if (cat === 'files' || cat === 'terminal' || item.path || isDir) {
-    // If we have a native icon from the backend, use it!
-    if (item.icon && item.icon.startsWith('data:image')) {
+  if (cat === 'files' || cat === 'terminal' || safeItem.path || isDir) {
+    if (safeItem.icon && safeItem.icon.startsWith('data:image')) {
       return (
         <img 
-          src={item.icon} 
+          src={safeItem.icon} 
           alt="" 
           style={{ width: size, height: size, objectFit: 'contain', display: 'block' }}
         />
       );
     }
     
-    // Fallback: Professional VSCode library logic (if native extraction didn't run)
     const iconName = isDir ? getIconForFolder(name) : getIconForFile(name);
     if (iconName) {
       const iconUrl = `https://raw.githubusercontent.com/vscode-icons/vscode-icons/master/icons/${iconName}`;
@@ -116,23 +118,24 @@ export const LucideIcon = ({ item, size = 20 }) => {
 
   // Final Fallbacks
   if (isDir) return <Folder size={size} />;
-  if (item.path) return <File size={size} />;
+  if (safeItem.path) return <File size={size} />;
   if (name.toLowerCase().includes('code') || name.toLowerCase().includes('visual studio')) return <Code size={size} />;
   return <LayoutGrid size={size} />;
 }
 
-export const ItemIcon = ({ item, large = false }) => {
+export const ItemIcon = ({ item, icon, large = false }) => {
   const [error, setError] = useState(false);
   const size = large ? 32 : 20;
+  const safeItem = typeof item === 'object' && item !== null ? item : { icon: icon || item };
 
   useEffect(() => {
     setError(false);
-  }, [item.id, item.icon]);
+  }, [safeItem?.id, safeItem?.icon]);
 
-  if (item.is_img && item.icon && !error) {
+  if (safeItem?.is_img && safeItem?.icon && !error) {
     return (
       <img 
-        src={item.icon} 
+        src={safeItem.icon} 
         alt="" 
         className={large ? "ray-icon-img-large" : "ray-icon-img"} 
         onError={() => setError(true)}
@@ -140,5 +143,5 @@ export const ItemIcon = ({ item, large = false }) => {
     );
   }
 
-  return <LucideIcon item={item} size={size} />;
+  return <LucideIcon item={safeItem} icon={icon} size={size} />;
 }

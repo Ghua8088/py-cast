@@ -4,12 +4,14 @@ import {
   Zap, ArrowRight, ArrowLeft, Check, Code, Shield, FolderGit2,
   Terminal, Sparkles, FolderPlus, Eye, Lock, Globe, Cpu, Palette
 } from 'lucide-react'
+import biteWordmark from '../assets/bite-wordmark.png'
+import biteIcon from '../assets/bite-icon.png'
 
 export default function OnboardingView({ onComplete, isResizing }) {
   const [step, setStep] = useState(1);
   const totalSteps = 5;
 
-  const [themeColor, setThemeColor] = useState('#6366f1');
+  const [themeColor, setThemeColor] = useState('#bfa5ff');
   const [startOnBoot, setStartOnBoot] = useState(false);
   const [optInClipboard, setOptInClipboard] = useState(true);
   const [optInAi, setOptInAi] = useState(true);
@@ -58,6 +60,7 @@ export default function OnboardingView({ onComplete, isResizing }) {
   };
 
   const themes = [
+    { name: 'Lavender', color: '#bfa5ff' },
     { name: 'Iris', color: '#6366f1' },
     { name: 'Sky', color: '#0ea5e9' },
     { name: 'Emerald', color: '#10b981' },
@@ -76,12 +79,18 @@ export default function OnboardingView({ onComplete, isResizing }) {
   ];
 
   return (
-    <div className="onboarding-container" style={{ '--accent': themeColor === 'adaptive' ? '#6366f1' : themeColor }}>
+    <div className="onboarding-container" style={{ '--accent': themeColor === 'adaptive' ? '#bfa5ff' : themeColor }}>
       {/* Header & Step Indicator */}
       <div className="onboarding-header">
         <div className="onboarding-brand">
-          <div className="brand-dot" />
-          <span className="brand-title">Bite Setup</span>
+          <span
+            className="brand-logo"
+            style={{
+              WebkitMaskImage: `url(${biteWordmark})`,
+              maskImage: `url(${biteWordmark})`
+            }}
+            title="Bite"
+          />
         </div>
         <div className="onboarding-step-tracker">
           {Array.from({ length: totalSteps }).map((_, i) => (
@@ -101,9 +110,7 @@ export default function OnboardingView({ onComplete, isResizing }) {
         {step === 1 && (
           <div className="onboarding-step-content">
             <div className="step-hero">
-              <div className="step-icon-squircle">
-                <Sparkles size={24} color="var(--accent)" />
-              </div>
+              <img src={biteIcon} alt="Bite" className="onboarding-app-icon" />
               <h2 className="step-title">Welcome to Bite</h2>
               <p className="step-subtitle">
                 The lightning-fast, developer-first command launcher and workflow engine.

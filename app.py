@@ -166,15 +166,49 @@ def main():
 
         return updater.download_and_install(info, on_progress)
 
-    @app.shortcut("Alt+B")
+    initial_hotkey = bite.user_data.get("settings", {}).get("global_hotkey", "Alt+B") or "Alt+B"
+    current_hotkey = [initial_hotkey]
+
     def toggle_bite():
-        if not bite.app.windows:
+        if not app.windows:
             return
-        win = bite.app.windows[0]
+        win = app.windows[0]
         if win.is_visible():
             win.hide()
         else:
             win.show()
+
+    try:
+        app.shortcut_manager.register(initial_hotkey, toggle_bite)
+    except Exception as e:
+        print(f"Error registering global shortcut {initial_hotkey}: {e}")
+
+    @app.expose
+    def set_global_hotkey(new_combo: str):
+        if not new_combo or not new_combo.strip():
+            return {"success": False, "error": "Hotkey cannot be empty"}
+        combo = new_combo.strip()
+        try:
+            if current_hotkey[0]:
+                try:
+                    app.shortcut_manager.unregister(current_hotkey[0])
+                except Exception:
+                    pass
+
+            app.shortcut_manager.register(combo, toggle_bite)
+            current_hotkey[0] = combo
+
+            settings = bite.get_settings()
+            settings["global_hotkey"] = combo
+            bite.update_settings(settings)
+            return {"success": True, "hotkey": combo}
+        except Exception as e:
+            try:
+                if current_hotkey[0]:
+                    app.shortcut_manager.register(current_hotkey[0], toggle_bite)
+            except Exception:
+                pass
+            return {"success": False, "error": str(e)}
 
     @app.on_exit
     def shutdown():

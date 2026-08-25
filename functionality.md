@@ -184,5 +184,7 @@
 | `#hex` / `rgb()` | Color preview & copy | `#38bdf8` |
 | `timer: <time>` | Start a countdown timer | `timer: 25m` or `t: 45s` |
 | `ai: <query>` | Ask Bite Intelligence / DuckDuckGo AI | `ai: what is rust ownership` |
+| `repo: <query>` | Search Git repositories across project roots | `repo: py-cast` |
+| `ide: <alias>` | Open path alias or workspace in preferred IDE | `ide: @project` or `ide: work` |
 | `@<alias>` | Smart folder path shortcut | `@proj\src` |
 | `<math / unit>` | Instant calculation or unit/currency conversion | `(50 * 4) + 12` or `100 usd to eur` |
