@@ -148,7 +148,16 @@ class Executor:
             explicit_search = True
 
         url = item.get("url") or item.get("path")
-        
+        if not url:
+            return
+
+        # Check if URL contains {} placeholder (e.g., https://google.com/search?q={})
+        if "{}" in url:
+            from urllib.parse import quote_plus
+            target_url = url.replace("{}", quote_plus(q) if q else "")
+            self.cross_platform_open(target_url)
+            return
+
         # Logic to decide if we should append the query to the URL:
         # 1. Explicit keyword trigger was used AND there is a query body
         # 2. It's the global "web_search" fallback item

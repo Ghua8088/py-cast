@@ -153,9 +153,14 @@ declare module 'pytron-client' {
     add_shortcut(k: any, n: any, u: any): Promise<any>;
     remove_shortcut(k: any): Promise<any>;
     get_user_shortcuts(): Promise<any>;
+    get_shortcuts(): Promise<any>;
+    update_shortcuts(shortcuts_list: any): Promise<any>;
     add_snippet(n: any, c: any): Promise<any>;
     remove_snippet(sid: any): Promise<any>;
     get_user_snippets(): Promise<any>;
+    get_snippets(): Promise<any>;
+    update_snippets(snippets_list: any): Promise<any>;
+    open_file(path: string): Promise<any>;
     add_path_alias(k: any, p: any): Promise<any>;
     remove_path_alias(k: any): Promise<any>;
     select_folder_for_alias(): Promise<any>;

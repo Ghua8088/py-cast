@@ -81,6 +81,14 @@ def main():
     def get_user_shortcuts():
         return bite.get_user_shortcuts()
 
+    @app.expose
+    def get_shortcuts():
+        return bite.get_shortcuts()
+
+    @app.expose
+    def update_shortcuts(shortcuts_list):
+        return bite.update_shortcuts(shortcuts_list)
+
     # Snippets API
     @app.expose
     def add_snippet(n, c):
@@ -93,6 +101,18 @@ def main():
     @app.expose
     def get_user_snippets():
         return bite.get_user_snippets()
+
+    @app.expose
+    def get_snippets():
+        return bite.get_snippets()
+
+    @app.expose
+    def update_snippets(snippets_list):
+        return bite.update_snippets(snippets_list)
+
+    @app.expose
+    def open_file(path: str):
+        return bite._cross_platform_open(path)
 
     # Path Alias API
     @app.expose

@@ -122,24 +122,40 @@ export default function SettingsView({ onClose, isResizing, onOpenOnboarding }) 
   // Shortcut CRUD
   const handleAddShortcut = async () => {
     if (!scForm.id || !scForm.url) return
+    const shortcutPayload = {
+      type: 'search',
+      cat: 'Custom',
+      icon: 'globe',
+      ...scForm,
+      name: scForm.name || scForm.id
+    }
     const updated = editingId
-      ? shortcuts.map(s => s.id === editingId ? scForm : s)
-      : [...shortcuts, scForm]
+      ? shortcuts.map(s => s.id === editingId ? { ...s, ...shortcutPayload } : s)
+      : [...shortcuts, shortcutPayload]
     setShortcuts(updated)
-    await pytron.update_shortcuts(updated)
+    if (pytron.update_shortcuts) {
+      await pytron.update_shortcuts(updated)
+    }
     setScForm({ id: '', name: '', url: '', icon: 'globe' })
     setEditingId(null)
   }
 
   const handleEditShortcut = (s) => {
-    setScForm(s)
+    setScForm({
+      id: s.id || '',
+      name: s.name || '',
+      url: s.url || s.path || '',
+      icon: s.icon || 'globe'
+    })
     setEditingId(s.id)
   }
 
   const handleDeleteShortcut = async (id) => {
     const updated = shortcuts.filter(s => s.id !== id)
     setShortcuts(updated)
-    await pytron.update_shortcuts(updated)
+    if (pytron.update_shortcuts) {
+      await pytron.update_shortcuts(updated)
+    }
   }
 
   // Snippet CRUD
@@ -148,14 +164,18 @@ export default function SettingsView({ onClose, isResizing, onOpenOnboarding }) 
     const newItem = { id: `snip_${Date.now()}`, ...snipForm }
     const updated = [...snippets, newItem]
     setSnippets(updated)
-    await pytron.update_snippets(updated)
+    if (pytron.update_snippets) {
+      await pytron.update_snippets(updated)
+    }
     setSnipForm({ name: '', content: '' })
   }
 
   const handleDeleteSnippet = async (id) => {
     const updated = snippets.filter(s => s.id !== id)
     setSnippets(updated)
-    await pytron.update_snippets(updated)
+    if (pytron.update_snippets) {
+      await pytron.update_snippets(updated)
+    }
   }
 
   const handleAddAlias = async () => {
